@@ -1,6 +1,7 @@
 [versions]
 agp = "8.1.2"
 core-ktx = "1.12.0"
+material-icons-extended = "1.5.4"
 org-jetbrains-kotlin-android = "1.8.10"
 core-splashscreen = "1.0.1"
 lifecycle-runtime-ktx = "2.6.2"
@@ -11,6 +12,7 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 
 [libraries]
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }

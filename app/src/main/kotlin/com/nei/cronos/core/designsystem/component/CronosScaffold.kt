@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.nei.cronos.core.designsystem.component
 
 import androidx.compose.foundation.layout.ColumnScope
@@ -31,7 +33,7 @@ fun CronosScaffold(
     drawerState: DrawerState,
     drawerContent: @Composable () -> Unit,
     bottomSheetState: SheetState = rememberModalBottomSheetState(),
-    modalBottomSheetContent: @Composable() (ColumnScope.() -> Unit),
+    modalBottomSheetContent: @Composable (ColumnScope.() -> Unit),
     openBottomSheet: Boolean,
     onOpenBottomSheetChange: (Boolean) -> Unit,
     content: @Composable (PaddingValues) -> Unit

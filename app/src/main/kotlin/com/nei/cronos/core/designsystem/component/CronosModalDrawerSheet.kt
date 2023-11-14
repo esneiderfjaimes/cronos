@@ -6,16 +6,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nei.cronos.core.designsystem.theme.CronosTheme
+import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import kotlinx.coroutines.launch
 
 @Composable
@@ -42,5 +46,13 @@ fun CronosModalDrawerSheet(drawerState: DrawerState) {
                 .padding(12.dp)
                 .align(Alignment.CenterHorizontally)
         )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun CronosModalDrawerSheetPreview() {
+    CronosTheme {
+        CronosModalDrawerSheet(rememberDrawerState(DrawerValue.Closed))
     }
 }

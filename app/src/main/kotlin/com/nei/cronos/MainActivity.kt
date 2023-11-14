@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // Disable splash screen
-        installSplashScreen().setKeepOnScreenCondition { true }
+        installSplashScreen().setKeepOnScreenCondition { false }
 
         setContent {
             CronosTheme {

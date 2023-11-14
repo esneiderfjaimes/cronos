@@ -14,8 +14,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.component.CronosModalDrawerSheet
 import com.nei.cronos.core.designsystem.component.CronosScaffold
+import com.nei.cronos.core.designsystem.theme.CronosTheme
+import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.core.pages.AddChronometerPage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +33,7 @@ fun CronosApp() {
         drawerContent = { CronosModalDrawerSheet(drawerState) },
         bottomSheetState = bottomSheetState,
         modalBottomSheetContent = {
-            Column {
+            Column(Modifier.padding(horizontal = 8.dp)) {
                 AddChronometerPage(
                     sheetState = bottomSheetState,
                     onOpenBottomSheetChange = { openBottomSheet = it },
@@ -45,5 +48,13 @@ fun CronosApp() {
                 .fillMaxSize()
                 .padding(paddingValues),
         )
+    }
+}
+
+@Composable
+@ThemePreviews
+fun CronosAppPreview() {
+    CronosTheme {
+        CronosApp()
     }
 }
