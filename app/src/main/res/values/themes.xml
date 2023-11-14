@@ -4,7 +4,8 @@
     <style name="Theme.TheLastTime" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.TheLastTime.Splash" parent="Theme.SplashScreen.IconBackground">
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="windowSplashScreenBackground">@color/background</item>
+        <item name="postSplashScreenTheme">@style/Theme.TheLastTime</item>
     </style>
 </resources>

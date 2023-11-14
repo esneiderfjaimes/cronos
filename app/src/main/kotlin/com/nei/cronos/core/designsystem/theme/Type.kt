@@ -1,4 +1,4 @@
-package com.nei.thelasttime.ui.theme
+package com.nei.cronos.core.designsystem.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

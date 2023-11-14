@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nei.thelasttime"
+    namespace = "com.nei.cronos"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.nei.thelasttime"
+        applicationId = "com.nei.cronos"
         minSdk = 30
         targetSdk = 34
         versionCode = 1
