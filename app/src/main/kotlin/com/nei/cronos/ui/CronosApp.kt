@@ -1,12 +1,13 @@
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+
 package com.nei.cronos.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,16 +16,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nei.cronos.core.designsystem.component.CronosModalDrawerSheet
-import com.nei.cronos.core.designsystem.component.CronosScaffold
+import com.nei.cronos.core.designsystem.component.DrawerState
+import com.nei.cronos.core.designsystem.component.DrawerValue
+import com.nei.cronos.core.designsystem.component.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
-import com.nei.cronos.core.pages.AddChronometerPage
+import com.nei.cronos.ui.contents.CronosModalDrawerSheet
+import com.nei.cronos.ui.contents.CronosScaffold
+import com.nei.cronos.ui.pages.AddChronometerPage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CronosApp() {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
+fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
     val bottomSheetState = rememberModalBottomSheetState()
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
 
@@ -56,5 +58,13 @@ fun CronosApp() {
 fun CronosAppPreview() {
     CronosTheme {
         CronosApp()
+    }
+}
+
+@Composable
+@ThemePreviews
+fun CronosAppPreviewWithDrawer() {
+    CronosTheme {
+        CronosApp(rememberDrawerState(DrawerValue.Show))
     }
 }

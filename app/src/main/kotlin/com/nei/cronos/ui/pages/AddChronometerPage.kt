@@ -1,6 +1,5 @@
-package com.nei.cronos.core.pages
+package com.nei.cronos.ui.pages
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,8 +40,6 @@ import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-const val TAG = "AddChronometerPage"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,39 +97,6 @@ fun ColumnScope.AddChronometerPage(
         ) {
             Text(text = "Start")
         }
-    }
-}
-
-@Composable
-@ThemePreviews
-fun Example() {
-    var count by remember { mutableIntStateOf(0) }
-    Log.d(TAG, "Example: READ ${count > 3}")
-    Button(onClick = {
-        Log.d(TAG, "Example: Clicked")
-        count++
-    }) {
-        Text(text = "Increment")
-    }
-}
-
-@Composable
-@ThemePreviews
-fun Example2() {
-    var count by remember { mutableIntStateOf(0) }
-    val calculation by remember {
-        derivedStateOf {
-            Log.d(TAG, "Example: Calculating")
-            count > 3
-        }
-    }
-
-    Log.d(TAG, "Example: READ $calculation")
-    Button(onClick = {
-        Log.d(TAG, "Example: Clicked")
-        count++
-    }) {
-        Text(text = "Increment $calculation")
     }
 }
 
