@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().setKeepOnScreenCondition { false }
 
         setContent {
-            CronosTheme(darkTheme = false) {
+            CronosTheme {
                 CronosApp()
             }
         }

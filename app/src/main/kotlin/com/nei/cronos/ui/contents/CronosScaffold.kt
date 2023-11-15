@@ -29,7 +29,7 @@ import com.nei.cronos.core.designsystem.component.rememberDrawerState
 @Composable
 fun CronosScaffold(
     drawerState: DrawerState = rememberDrawerState(),
-    drawerContent: @Composable BoxWithConstraintsScope.() -> Unit,
+    drawerContent: @Composable ColumnScope.() -> Unit,
     bottomSheetState: SheetState = rememberModalBottomSheetState(),
     modalBottomSheetContent: @Composable (ColumnScope.() -> Unit),
     openBottomSheet: Boolean,

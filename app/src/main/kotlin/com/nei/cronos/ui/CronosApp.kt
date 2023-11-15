@@ -1,4 +1,8 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 
 package com.nei.cronos.ui
 
