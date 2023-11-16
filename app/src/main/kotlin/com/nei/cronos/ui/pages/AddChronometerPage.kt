@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.TextField
 import com.nei.cronos.core.designsystem.theme.CronosTheme
@@ -47,6 +48,7 @@ fun ColumnScope.AddChronometerPage(
     sheetState: SheetState = rememberModalBottomSheetState(),
     onOpenBottomSheetChange: (Boolean) -> Unit = {},
 ) {
+    val viewModel: AddChronometerViewModel = viewModel()
     val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -86,6 +88,7 @@ fun ColumnScope.AddChronometerPage(
         Spacer(modifier = Modifier.weight(1f))
         TextButton(
             onClick = {
+                viewModel.insertChronometer(text)
                 scope.launch {
                     focusManager.clearFocus(true)
                     delay(250)

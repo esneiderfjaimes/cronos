@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +26,7 @@ import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.ui.contents.CronosDrawerContent
 import com.nei.cronos.ui.contents.CronosScaffold
+import com.nei.cronos.ui.home.HomeContent
 import com.nei.cronos.ui.pages.AddChronometerPage
 
 @Composable
@@ -50,13 +49,11 @@ fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
         openBottomSheet = openBottomSheet,
         onOpenBottomSheetChange = { openBottomSheet = it },
     ) { paddingValues ->
-        Surface(
+        HomeContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            tonalElevation = 1.dp,
-            color = MaterialTheme.colorScheme.surface
-        ) {}
+        )
     }
 }
 
