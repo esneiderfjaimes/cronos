@@ -3,10 +3,8 @@
 package com.nei.cronos.ui.contents
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -21,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.nei.cronos.core.designsystem.component.CronosBackground
+import com.nei.cronos.core.designsystem.component.DrawerState
 import com.nei.cronos.core.designsystem.component.DrawerValue
 import com.nei.cronos.core.designsystem.component.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
@@ -29,8 +28,8 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ColumnScope.CronosModalDrawerSheet(
-    drawerState: AnchoredDraggableState<DrawerValue> = rememberDrawerState()
+fun CronosDrawerContent(
+    drawerState: DrawerState = rememberDrawerState()
 ) {
     val scope = rememberCoroutineScope()
     repeat(3) {
@@ -58,7 +57,7 @@ fun CronosModalDrawerSheetPreview() {
     CronosTheme {
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             Column {
-                CronosModalDrawerSheet()
+                CronosDrawerContent()
             }
         }
     }
