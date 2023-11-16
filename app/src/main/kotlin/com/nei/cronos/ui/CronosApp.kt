@@ -49,11 +49,7 @@ fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
         openBottomSheet = openBottomSheet,
         onOpenBottomSheetChange = { openBottomSheet = it },
     ) { paddingValues ->
-        HomeContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        )
+        HomeContent(paddingValues)
     }
 }
 
