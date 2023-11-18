@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nei.cronos.core.database.ChronometerEntity
-import com.nei.cronos.core.designsystem.component.ChronometerChip
+import com.nei.cronos.core.database.models.ChronometerEntity
+import com.nei.cronos.core.designsystem.component.ChronometerListItem
 
 @Composable
 fun HomeContent(
@@ -82,7 +81,11 @@ private fun ChronometersContent(
         contentPadding = paddingValues
     ) {
         items(chronometers) { chronometer ->
-            ChronometerChip(time = chronometer.fromDate, title = chronometer.title)
+            ChronometerListItem(
+                time = chronometer.fromDate,
+                title = chronometer.title,
+                format = chronometer.format
+            )
         }
     }
 }

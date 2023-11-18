@@ -1,4 +1,4 @@
-package com.nei.cronos.core.database
+package com.nei.cronos.core.database.converters
 
 import androidx.room.TypeConverter
 import java.time.LocalDateTime
