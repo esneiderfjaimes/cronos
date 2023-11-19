@@ -16,24 +16,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.designsystem.component.ChronometerListItem
+import com.nei.cronos.core.designsystem.theme.CronosTheme
 
 @Composable
 fun HomeContent(
     paddingValues: PaddingValues = PaddingValues(),
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
+    onChronometerClick: (Int) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
-    HomeContent(state, paddingValues)
+    HomeContent(state, paddingValues, onChronometerClick = onChronometerClick)
 }
 
 @Composable
 private fun HomeContent(
     state: HomeViewModel.HomeState,
     paddingValues: PaddingValues = PaddingValues(),
+    onChronometerClick: (Int) -> Unit = {},
 ) {
     if (state.isLoading) {
         LoadingContent(paddingValues)
@@ -45,7 +49,7 @@ private fun HomeContent(
         return
     }
 
-    ChronometersContent(state.chronometers, paddingValues)
+    ChronometersContent(state.chronometers, paddingValues, onChronometerClick = onChronometerClick)
 }
 
 @Composable
@@ -68,24 +72,25 @@ private fun EmptyChronometersContent(paddingValues: PaddingValues = PaddingValue
     ) { Text(text = "No chronometers") }
 }
 
-@Preview
 @Composable
 private fun ChronometersContent(
     chronometers: List<ChronometerEntity> = emptyList(),
-    paddingValues: PaddingValues = PaddingValues()
+    paddingValues: PaddingValues = PaddingValues(),
+    onChronometerClick: (Int) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
-            .background(if (isSystemInDarkTheme()) Color.Black else Color.White)
             .fillMaxSize(),
         contentPadding = paddingValues
     ) {
-        items(chronometers) { chronometer ->
+        items(chronometers, key = { it.id }) { chronometer ->
             ChronometerListItem(
                 time = chronometer.fromDate,
                 title = chronometer.title,
                 format = chronometer.format
-            )
+            ) {
+                onChronometerClick.invoke(chronometer.id)
+            }
         }
     }
 }
@@ -93,5 +98,7 @@ private fun ChronometersContent(
 @Preview
 @Composable
 private fun HomeContentPreview() {
-    HomeContent(HomeViewModel.HomeState())
+    CronosTheme {
+        HomeContent(HomeViewModel.HomeState())
+    }
 }

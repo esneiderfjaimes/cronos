@@ -18,6 +18,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.nei.cronos.core.designsystem.component.DrawerState
 import com.nei.cronos.core.designsystem.component.DrawerValue
 import com.nei.cronos.core.designsystem.component.rememberDrawerState
@@ -27,28 +30,40 @@ import com.nei.cronos.ui.contents.CronosDrawerContent
 import com.nei.cronos.ui.contents.CronosScaffold
 import com.nei.cronos.ui.home.HomeContent
 import com.nei.cronos.ui.pages.AddChronometerPage
+import com.nei.cronos.ui.pages.chronometer.navigation.chronometerScreen
+import com.nei.cronos.ui.pages.chronometer.navigation.navigateToChronometer
 
 @Composable
 fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
     val bottomSheetState = rememberModalBottomSheetState()
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    val navController = rememberNavController()
 
-    CronosScaffold(
-        drawerState = drawerState,
-        drawerContent = { CronosDrawerContent(drawerState) },
-        bottomSheetState = bottomSheetState,
-        modalBottomSheetContent = {
-            Column(Modifier.padding(horizontal = 8.dp)) {
-                AddChronometerPage(
-                    sheetState = bottomSheetState,
-                    onOpenBottomSheetChange = { openBottomSheet = it },
-                )
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            CronosScaffold(
+                drawerState = drawerState,
+                drawerContent = { CronosDrawerContent(drawerState) },
+                bottomSheetState = bottomSheetState,
+                modalBottomSheetContent = {
+                    Column(Modifier.padding(horizontal = 8.dp)) {
+                        AddChronometerPage(
+                            sheetState = bottomSheetState,
+                        ) { openBottomSheet = it }
+                    }
+                },
+                openBottomSheet = openBottomSheet,
+                onOpenBottomSheetChange = { openBottomSheet = it },
+            ) { paddingValues ->
+                HomeContent(paddingValues) {
+                    navController.navigateToChronometer(it)
+                }
             }
-        },
-        openBottomSheet = openBottomSheet,
-        onOpenBottomSheetChange = { openBottomSheet = it },
-    ) { paddingValues ->
-        HomeContent(paddingValues)
+        }
+
+        chronometerScreen(
+            onBackClick = navController::popBackStack
+        )
     }
 }
 
