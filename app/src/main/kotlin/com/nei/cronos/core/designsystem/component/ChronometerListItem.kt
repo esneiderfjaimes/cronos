@@ -19,11 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.database.models.ChronometerFormat
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
-import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Composable
 fun ChronometerListItem(
-    time: LocalDateTime,
+    time: ZonedDateTime,
     title: String,
     format: ChronometerFormat = ChronometerFormat(),
     onClick: () -> Unit = {},
@@ -55,7 +56,7 @@ private fun ChronometerListItemPreview() {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 ChronometerListItem(
-                    time = LocalDateTime.now(),
+                    time = ZonedDateTime.now(),
                     title = "since this compiled",
                     format = ChronometerFormat.DefaultFormat
                 )
@@ -73,7 +74,7 @@ fun AllCombinations() {
                 this.items((0..255).toList()) {
                     val format = ChronometerFormat.fromFlags(it)
                     ChronometerListItem(
-                        time = LocalDateTime.of(2015, 9, 2, 0, 0, 0),
+                        time = ZonedDateTime.of(2015, 9, 2, 0, 0, 0, 0, ZoneId.systemDefault()),
                         title = "avocado 🥑",
                         format = format
                     )

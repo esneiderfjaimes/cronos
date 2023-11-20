@@ -12,6 +12,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 typealias Time = Triple<Int, Int, Boolean>
@@ -37,8 +38,10 @@ class AddChronometerViewModel @Inject constructor(
                 LocalTime.now()
             }
 
-            val createdAt = LocalDateTime.now()
-            val fromDate = LocalDateTime.of(localDate, localTime)
+            val localDateTime = LocalDateTime.of(localDate, localTime)
+
+            val createdAt = ZonedDateTime.now()
+            val fromDate = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
             chronometerDao.insertAll(
                 ChronometerEntity(
                     title = title, createdAt = createdAt, fromDate = fromDate

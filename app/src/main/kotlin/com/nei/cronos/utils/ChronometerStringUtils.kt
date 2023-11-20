@@ -2,46 +2,47 @@ package com.nei.cronos.utils
 
 import com.nei.cronos.core.database.models.ChronometerFormat
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.Locale
 
-fun LocalDateTime.differenceParse(
+fun ZonedDateTime.differenceParse(
     format: ChronometerFormat,
     locale: Locale,
 ) = buildString {
-    val now = LocalDateTime.now()
-    var diff = Duration.between(this@differenceParse, now)
-    val years = diff.toYears()
+    val now = ZonedDateTime.now(this@differenceParse.zone)
+    var duration = Duration.between(this@differenceParse, now)
+
+    val years = duration.toYears()
     if (format.showYear && (!format.hideZeros || years != 0L)) {
         append("${years.format(locale)}y ")
-        diff = diff.minusYears(years)
+        duration = duration.minusYears(years)
     }
 
-    val months = diff.toMonths()
+    val months = duration.toMonths()
     if (format.showMonth && (!format.hideZeros || months != 0L)) {
         append("${months.format(locale)}m ")
-        diff = diff.minusMonths(months)
+        duration = duration.minusMonths(months)
     }
 
-    val weeks = diff.toWeeks()
+    val weeks = duration.toWeeks()
     if (format.showWeek && (!format.hideZeros || weeks != 0L)) {
         append("${weeks.format(locale)}w ")
-        diff = diff.minusWeeks(weeks)
+        duration = duration.minusWeeks(weeks)
     }
 
-    val days = diff.toDays()
+    val days = duration.toDays()
     if (format.showDay && (!format.hideZeros || days != 0L)) {
         append("${days.format(locale)}d ")
-        diff = diff.minusDays(days)
+        duration = duration.minusDays(days)
     }
 
     if (format.showHour) {
-        val hours = diff.toHours()
+        val hours = duration.toHours()
         if (hours < 24 && format.showMinute) {
-            val hoursPart = diff.toHoursPart().toString().padStart(2, '0')
-            val minutesPart = diff.toMinutesPart().toString().padStart(2, '0')
+            val hoursPart = duration.toHoursPart().toString().padStart(2, '0')
+            val minutesPart = duration.toMinutesPart().toString().padStart(2, '0')
             if (format.showSecond) {
-                val secondsPart = diff.toSecondsPart().toString().padStart(2, '0')
+                val secondsPart = duration.toSecondsPart().toString().padStart(2, '0')
                 append("$hoursPart:$minutesPart:$secondsPart ") // HH:MM:SS
             } else {
                 append("$hoursPart:$minutesPart ") // HH:MM
@@ -49,18 +50,18 @@ fun LocalDateTime.differenceParse(
             return@buildString
         } else {
             append("${hours.format(locale)}h ")
-            diff = diff.minusHours(hours)
+            duration = duration.minusHours(hours)
         }
     }
 
     if (format.showMinute) {
-        val minutes = diff.toMinutes()
+        val minutes = duration.toMinutes()
         append("${minutes.format(locale)}m ")
-        diff = diff.minusMinutes(minutes)
+        duration = duration.minusMinutes(minutes)
     }
 
     if (format.showSecond) {
-        val seconds = diff.toSeconds()
+        val seconds = duration.toSeconds()
         append("${seconds.format(locale)}s ")
     }
 }

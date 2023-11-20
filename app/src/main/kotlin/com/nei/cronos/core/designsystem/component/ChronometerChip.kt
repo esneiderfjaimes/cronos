@@ -27,11 +27,12 @@ import com.nei.cronos.utils.differenceParse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Composable
 fun ChronometerChipRunning(
-    time: LocalDateTime,
+    time: ZonedDateTime,
     modifier: Modifier = Modifier,
     format: ChronometerFormat = ChronometerFormat(),
 ) {
@@ -59,7 +60,8 @@ fun ChronometerChip(text: String, modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(25)
             )
-            .padding(8.dp).animateContentSize(),
+            .padding(8.dp)
+            .animateContentSize(),
         color = MaterialTheme.colorScheme.onPrimary,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Medium
@@ -71,7 +73,7 @@ fun ChronometerChip(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun ChronometerChipPreview() {
     val locale = getLocale()
-    val time = LocalDateTime.of(2015, 9, 2, 0, 0, 0)
+    val time = ZonedDateTime.of(2015, 9, 2, 0, 0, 0, 0, ZoneId.systemDefault())
     FlowRow(
         Modifier
             .verticalScroll(rememberScrollState())

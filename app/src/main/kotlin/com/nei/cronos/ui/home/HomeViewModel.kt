@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +35,7 @@ class HomeViewModel @Inject constructor(chronometerDao: ChronometerDao) : ViewMo
                             ),
                             ChronometerEntity(
                                 title = "avocado 🥑",
-                                fromDate = LocalDateTime.of(2015, 9, 2, 0, 0, 0, 0),
+                                fromDate = ZonedDateTime.of(2015, 9, 2, 0, 0, 0, 0, ZoneId.systemDefault()),
                                 format = ChronometerFormat.DefaultFormat.copy(
                                     showYear = true,
                                     showMonth = true,
