@@ -44,7 +44,7 @@ class HomeViewModel @Inject constructor(
             ),
             ChronometerEntity(
                 title = "avocado 🥑",
-                fromDate = ZonedDateTime.of(
+                allDateTime = ZonedDateTime.of(
                     /* year = */ 2015,
                     /* month = */ 9,
                     /* dayOfMonth = */ 2,

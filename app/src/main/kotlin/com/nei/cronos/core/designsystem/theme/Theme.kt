@@ -90,7 +90,7 @@ fun CronosTheme(
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     amoled: Boolean = false,
-    appTheme: AppTheme = AppTheme.Yellow,
+    appTheme: AppTheme = AppTheme.Blue,
     monochromatic: Boolean = true,
     content: @Composable () -> Unit
 ) {

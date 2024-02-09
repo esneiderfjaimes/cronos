@@ -13,7 +13,7 @@ interface ChronometerDao {
     @Insert
     suspend fun insertAll(vararg chronometers: ChronometerEntity)
 
-    @Query("SELECT * FROM chronometers")
+    @Query("SELECT * FROM chronometers WHERE is_archived = false")
     fun flowAll(): Flow<List<ChronometerEntity>>
 
     @Query("SELECT * FROM chronometers WHERE id = :id")

@@ -13,7 +13,7 @@ import com.nei.cronos.core.database.daos.LapDao
 import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.database.models.LapEntity
 
-@Database(version = 2, entities = [ChronometerEntity::class, LapEntity::class])
+@Database(version = 1, entities = [ChronometerEntity::class, LapEntity::class])
 @TypeConverters(TotalDateTimeConverter::class, ChronometerFormatConverter::class)
 abstract class CronosDatabase : RoomDatabase() {
     abstract fun chronometerDao(): ChronometerDao

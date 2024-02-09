@@ -12,5 +12,6 @@ interface LocalRepository {
     suspend fun updateChronometer(chronometer: ChronometerEntity)
 
     suspend fun registerLapIn(chronometer: ChronometerEntity)
+
     fun flowChronometerWithLapsById(id: Long): Flow<ChronometerWithLaps?>
 }
