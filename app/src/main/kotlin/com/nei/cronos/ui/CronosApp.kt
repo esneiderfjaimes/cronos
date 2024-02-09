@@ -1,7 +1,6 @@
 @file:OptIn(
     ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
 )
 
 package com.nei.cronos.ui
@@ -55,9 +54,10 @@ fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
                 openBottomSheet = openBottomSheet,
                 onOpenBottomSheetChange = { openBottomSheet = it },
             ) { paddingValues ->
-                HomeContent(paddingValues) {
-                    navController.navigateToChronometer(it)
-                }
+                HomeContent(
+                    paddingValues,
+                    onChronometerClick = navController::navigateToChronometer
+                )
             }
         }
 

@@ -1,4 +1,4 @@
-package com.nei.cronos.core.database
+package com.nei.cronos.core.database.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -13,11 +13,11 @@ interface ChronometerDao {
     @Insert
     fun insertAll(vararg chronometers: ChronometerEntity)
 
-    @Query("SELECT * FROM chronometer")
+    @Query("SELECT * FROM chronometers")
     fun flowAll(): Flow<List<ChronometerEntity>>
 
-    @Query("SELECT * FROM chronometer WHERE id = :id")
-    fun byId(id: Int): ChronometerEntity
+    @Query("SELECT * FROM chronometers WHERE id = :id")
+    fun byId(id: Long): ChronometerEntity?
 
     @Update
     fun update(chronometer: ChronometerEntity)

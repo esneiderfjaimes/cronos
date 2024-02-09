@@ -7,12 +7,20 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.nei.cronos.core.database.converters.ChronometerFormatConverter
 import com.nei.cronos.core.database.converters.TotalDateTimeConverter
+import com.nei.cronos.core.database.daos.ChronometerDao
+import com.nei.cronos.core.database.daos.ChronometerWithLapsDao
+import com.nei.cronos.core.database.daos.LapDao
 import com.nei.cronos.core.database.models.ChronometerEntity
+import com.nei.cronos.core.database.models.LapEntity
 
-@Database(version = 1, entities = [ChronometerEntity::class])
+@Database(version = 2, entities = [ChronometerEntity::class, LapEntity::class])
 @TypeConverters(TotalDateTimeConverter::class, ChronometerFormatConverter::class)
 abstract class CronosDatabase : RoomDatabase() {
     abstract fun chronometerDao(): ChronometerDao
+
+    abstract fun lapDao(): LapDao
+
+    abstract fun chronometerWithLapsDao(): ChronometerWithLapsDao
 
     companion object {
 
@@ -23,6 +31,9 @@ abstract class CronosDatabase : RoomDatabase() {
             context,
             CronosDatabase::class.java,
             DATABASE_NAME
-        ).build()
+        ).run {
+            fallbackToDestructiveMigration()
+            build()
+        }
     }
 }

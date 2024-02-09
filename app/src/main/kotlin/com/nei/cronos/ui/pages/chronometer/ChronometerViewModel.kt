@@ -3,7 +3,7 @@ package com.nei.cronos.ui.pages.chronometer
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nei.cronos.core.database.ChronometerDao
+import com.nei.cronos.core.database.daos.ChronometerDao
 import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,8 @@ class ChronometerViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             val chronometer = chronometerDao.byId(args.chronometerId)
-            _state.value = ChronometerUiState.Success(chronometer)
+            _state.value = chronometer?.let { ChronometerUiState.Success(it) }
+                ?: ChronometerUiState.Error
         }
     }
 

@@ -120,7 +120,7 @@ fun AddChronometerPage(
                 val dateFormatPattern = DateTimeFormatter.ofPattern("d/M/yyyy", locale)
 
                 // Obtiene la fecha actual (sin hora)
-                val currentDate =  Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
+                val currentDate = Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
 
                 // Formatea la fecha utilizando el formatter
                 val formattedDate = currentDate.format(dateFormatPattern)

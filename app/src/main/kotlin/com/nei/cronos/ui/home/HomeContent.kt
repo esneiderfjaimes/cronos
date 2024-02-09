@@ -19,11 +19,13 @@ import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.designsystem.component.ChronometerListItem
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 
+typealias OnChronometerClick = (Long) -> Unit
+
 @Composable
 fun HomeContent(
     paddingValues: PaddingValues = PaddingValues(),
     viewModel: HomeViewModel = hiltViewModel(),
-    onChronometerClick: (Int) -> Unit,
+    onChronometerClick: OnChronometerClick,
 ) {
     val state by viewModel.state.collectAsState()
     HomeContent(state, paddingValues, onChronometerClick = onChronometerClick)
@@ -33,7 +35,7 @@ fun HomeContent(
 private fun HomeContent(
     state: HomeViewModel.HomeState,
     paddingValues: PaddingValues = PaddingValues(),
-    onChronometerClick: (Int) -> Unit = {},
+    onChronometerClick: OnChronometerClick = {},
 ) {
     if (state.isLoading) {
         LoadingContent(paddingValues)
@@ -72,7 +74,7 @@ private fun EmptyChronometersContent(paddingValues: PaddingValues = PaddingValue
 private fun ChronometersContent(
     chronometers: List<ChronometerEntity> = emptyList(),
     paddingValues: PaddingValues = PaddingValues(),
-    onChronometerClick: (Int) -> Unit,
+    onChronometerClick: OnChronometerClick,
 ) {
     LazyColumn(
         modifier = Modifier

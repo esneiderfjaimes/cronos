@@ -2,7 +2,7 @@ package com.nei.cronos.ui.pages
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nei.cronos.core.database.ChronometerDao
+import com.nei.cronos.core.database.daos.ChronometerDao
 import com.nei.cronos.core.database.models.ChronometerEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

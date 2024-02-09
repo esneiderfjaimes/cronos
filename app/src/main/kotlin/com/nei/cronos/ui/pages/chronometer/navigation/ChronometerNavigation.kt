@@ -17,16 +17,16 @@ private val URL_CHARACTER_ENCODING = UTF_8.name()
 @VisibleForTesting
 internal const val chronometerIdArg = "chronometerId"
 
-internal class ChronometerArgs(val chronometerId: Int) {
+internal class ChronometerArgs(val chronometerId: Long) {
     constructor(savedStateHandle: SavedStateHandle) : this(
         URLDecoder.decode(
             checkNotNull(savedStateHandle[chronometerIdArg]),
             URL_CHARACTER_ENCODING
-        ).toInt()
+        ).toLong()
     )
 }
 
-fun NavController.navigateToChronometer(topicId: Int) {
+fun NavController.navigateToChronometer(topicId: Long) {
     val encodedId = URLEncoder.encode(topicId.toString(), URL_CHARACTER_ENCODING)
     this.navigate("chronometer_route/$encodedId") {
         launchSingleTop = true

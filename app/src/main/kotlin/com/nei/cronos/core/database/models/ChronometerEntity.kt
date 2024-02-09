@@ -5,10 +5,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.time.ZonedDateTime
 
-@Entity(tableName = "chronometer")
+@Entity(tableName = "chronometers")
 data class ChronometerEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0,
+    var id: Long = 0,
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "created_at")
