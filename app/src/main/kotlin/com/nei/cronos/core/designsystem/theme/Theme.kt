@@ -88,7 +88,7 @@ private val LightColorScheme = lightColorScheme(
 fun CronosTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     amoled: Boolean = false,
     appTheme: AppTheme = AppTheme.Yellow,
     monochromatic: Boolean = true,
