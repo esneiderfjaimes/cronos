@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +45,6 @@ fun ChronometerFlag(
     ) {
         Column(
             modifier = Modifier
-                .clickable { onCheckedChange.invoke(!checked) }
                 .padding(8.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -57,18 +60,23 @@ fun ChronometerFlag(
                 enabled = false
             )
         }
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange.invoke(!checked) }
+        )
     }
 }
 
 @ThemePreviews
 @Composable
 fun ChronometerFlagPreview() {
+    var checked by rememberSaveable { mutableStateOf(true) }
     CronosTheme {
-        CronosBackground {
+        CronosBackground(Modifier.size(200.dp)) {
             ChronometerFlag(
                 text = "Seconds",
-                checked = true,
-                onCheckedChange = {},
+                checked = checked,
+                onCheckedChange = { checked = it },
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.nei.cronos.core.designsystem.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ fun SwitchFormat(text: String, checked: Boolean, onCheckedChange: (Boolean) -> U
         modifier = Modifier.padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 1.dp,
+        border = if (checked) BorderStroke(2.dp, color) else null,
     ) {
         Row(
             modifier = Modifier

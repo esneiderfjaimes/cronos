@@ -1,6 +1,5 @@
 package com.nei.cronos.core.designsystem.component
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
@@ -33,7 +32,6 @@ fun TextField(
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     colors: TextFieldColors = TextFieldDefaults.colors(),
 ) {
-    Log.i(TAG, "TextField: Reading value: $value")
     BasicTextFieldFoundation(
         value = value,
         onValueChange = onValueChange,
@@ -47,13 +45,7 @@ fun TextField(
         textStyle = textStyle.copy(color = colors.focusedTextColor),
         cursorBrush = colors.brush,
     ) { innerTextField ->
-        val showPlaceholder by remember(value) {
-            derivedStateOf {
-                Log.i(TAG, "TextField: calculating showPlaceholder")
-                value.isEmpty()
-            }
-        }
-        Log.i(TAG, "TextField: showPlaceholder: ${value.isEmpty()}")
+        val showPlaceholder by remember(value) { derivedStateOf { value.isEmpty() } }
 
         // placeholder
         AnimatedVisibility(
@@ -71,5 +63,3 @@ fun TextField(
         innerTextField.invoke()
     }
 }
-
-private const val TAG = "TextField"
