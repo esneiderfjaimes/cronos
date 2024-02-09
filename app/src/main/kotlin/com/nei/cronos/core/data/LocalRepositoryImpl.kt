@@ -1,5 +1,6 @@
 package com.nei.cronos.core.data
 
+import com.nei.cronos.core.common.result.executeToResult
 import com.nei.cronos.core.database.daos.ChronometerDao
 import com.nei.cronos.core.database.daos.ChronometerWithLapsDao
 import com.nei.cronos.core.database.daos.LapDao
@@ -20,18 +21,21 @@ class LocalRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertChronometer(vararg chronometer: ChronometerEntity) {
-        return chronometerDao.insertAll(*chronometer)
+        executeToResult {
+            chronometerDao.insertAll(*chronometer)
+        }
     }
 
     override suspend fun updateChronometer(chronometer: ChronometerEntity) {
-        chronometerDao.update(chronometer)
+        executeToResult { chronometerDao.update(chronometer) }
     }
 
     override suspend fun registerLapIn(chronometer: ChronometerEntity) {
-        // create new lap
-        lapsDao.insert(LapEntity(chronometerId = chronometer.id))
-        // reset fromDate to now
-        chronometerDao.update(chronometer.copy(fromDate = ZonedDateTime.now()))
+        executeToResult {  // create new lap
+            lapsDao.insert(LapEntity(chronometerId = chronometer.id))
+            // reset fromDate to now
+            chronometerDao.update(chronometer.copy(fromDate = ZonedDateTime.now()))
+        }
     }
 
     override fun flowChronometerWithLapsById(id: Long): Flow<ChronometerWithLaps?> {

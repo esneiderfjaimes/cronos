@@ -28,9 +28,14 @@ class ChronometerViewModel @Inject constructor(
             localRepository.flowChronometerWithLapsById(args.chronometerId).catch {
                 Log.e(TAG, "flowChronometerWithLapsById(${args.chronometerId}): catch:", it)
             }.collect { chronometerWithLaps ->
-                _state.value =
-                    chronometerWithLaps?.let { ChronometerUiState.Success(it.chronometer) }
-                        ?: ChronometerUiState.Error
+                val uiState = _state.value
+                _state.value = chronometerWithLaps?.let {
+                    if (uiState is ChronometerUiState.Success) {
+                        uiState.copy(chronometer = it.chronometer)
+                    } else {
+                        ChronometerUiState.Success(chronometer = it.chronometer)
+                    }
+                } ?: ChronometerUiState.Error
             }
         }
     }
@@ -49,7 +54,7 @@ class ChronometerViewModel @Inject constructor(
             val uiState = _state.value
             if (uiState is ChronometerUiState.Success) {
                 if (uiState.enabledSaveButton) {
-                    localRepository.insertChronometer(uiState.chronometer)
+                    localRepository.updateChronometer(uiState.chronometer)
                 }
             }
         }
@@ -72,7 +77,7 @@ sealed interface ChronometerUiState {
         val chronometer: ChronometerEntity,
         private val chronometerPreviews: ChronometerEntity = chronometer,
     ) : ChronometerUiState {
-        val enabledSaveButton: Boolean = chronometerPreviews != chronometer
+        val enabledSaveButton: Boolean = chronometerPreviews.format != chronometer.format
     }
 
     object Error : ChronometerUiState

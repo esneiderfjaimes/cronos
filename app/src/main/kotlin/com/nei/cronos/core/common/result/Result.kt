@@ -19,3 +19,10 @@ fun <T> Flow<T>.asResult(): Flow<Result<T>> {
         .onStart { emit(Result.Loading) }
         .catch { emit(Result.Error(it)) }
 }
+
+suspend fun <T> executeToResult(block: suspend () -> T) = try {
+    kotlin.Result.success(block())
+} catch (e: Exception) {
+    e.printStackTrace()
+    kotlin.Result.failure(e)
+}
