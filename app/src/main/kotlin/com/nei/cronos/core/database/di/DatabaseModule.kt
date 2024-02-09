@@ -1,4 +1,4 @@
-package com.nei.cronos.core.di
+package com.nei.cronos.core.database.di
 
 import android.content.Context
 import com.nei.cronos.core.database.CronosDatabase

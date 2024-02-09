@@ -2,44 +2,31 @@ package com.nei.cronos.ui.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.nei.cronos.core.database.daos.ChronometerDao
-import com.nei.cronos.core.database.daos.ChronometerWithLapsDao
+import com.nei.cronos.core.data.LocalRepository
 import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.utils.launchIO
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val chronometerDao: ChronometerDao,
-    chronometerWithLapsDao: ChronometerWithLapsDao
+    private val localRepository: LocalRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            // Load chronometerWithLaps
-            chronometerWithLapsDao.flowAll()
-                .catch { Log.e(TAG, "chronometerWithLapsDao.flowAll(): catch:", it) }
-                .collect { chronometerWithLaps ->
-                    Log.i(TAG, "chronometerWithLaps: $chronometerWithLaps")
-                }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
+        launchIO {
             // Load chronometers
             _state.value = _state.value.copy(isLoading = true)
-            chronometerDao.flowAll()
+            localRepository.flowAllChronometers()
                 .catch { Log.e(TAG, "chronometerDao.flowAll(): catch:", it) }
                 .collect { chronometers ->
                     if (chronometers.isEmpty()) {
@@ -50,8 +37,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun mockIfEmpty() {
-        chronometerDao.insertAll(
+    private suspend fun mockIfEmpty() {
+        localRepository.insertChronometer(
             ChronometerEntity(
                 title = "since I've been using the app",
             ),

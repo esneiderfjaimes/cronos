@@ -1,12 +1,10 @@
 package com.nei.cronos.ui.pages
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.nei.cronos.core.database.daos.ChronometerDao
+import com.nei.cronos.core.data.LocalRepository
 import com.nei.cronos.core.database.models.ChronometerEntity
+import com.nei.cronos.utils.launchIO
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -19,7 +17,7 @@ typealias Time = Triple<Int, Int, Boolean>
 
 @HiltViewModel
 class AddChronometerViewModel @Inject constructor(
-    private val chronometerDao: ChronometerDao,
+    private val localRepository: LocalRepository,
 ) : ViewModel() {
 
     fun insertChronometer(
@@ -27,7 +25,7 @@ class AddChronometerViewModel @Inject constructor(
         selectedTime: Time?,
         selectedDateMillis: Long?,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        launchIO {
             val localDate = selectedDateMillis?.let {
                 Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.of("UTC")).toLocalDate()
             } ?: LocalDate.now()
@@ -42,7 +40,7 @@ class AddChronometerViewModel @Inject constructor(
 
             val createdAt = ZonedDateTime.now()
             val fromDate = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
-            chronometerDao.insertAll(
+            localRepository.insertChronometer(
                 ChronometerEntity(
                     title = title, createdAt = createdAt, fromDate = fromDate
                 )
