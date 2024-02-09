@@ -30,19 +30,17 @@ class AddChronometerViewModel @Inject constructor(
                 Instant.ofEpochMilli(selectedDateMillis).atZone(ZoneId.of("UTC")).toLocalDate()
             } ?: LocalDate.now()
             val localTime: LocalTime = if (selectedTime != null) {
-                val (hour, minutes, is24hour) = selectedTime
+                val (hour, minutes, _) = selectedTime
                 LocalTime.of(hour, minutes)
             } else {
                 LocalTime.now()
             }
 
             val localDateTime = LocalDateTime.of(localDate, localTime)
-
-            val createdAt = ZonedDateTime.now()
-            val fromDate = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
+            val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
             localRepository.insertChronometer(
                 ChronometerEntity(
-                    title = title, createdAt = createdAt, fromDate = fromDate
+                    title = title, allDateTime = zonedDateTime
                 )
             )
         }
