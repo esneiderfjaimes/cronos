@@ -1,14 +1,27 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalLayoutApi::class
+)
 
 package com.nei.cronos.ui.pages
 
-import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,10 +30,10 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SheetState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -34,7 +47,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,10 +70,56 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 fun AddChronometerPage(
-    sheetState: SheetState = rememberModalBottomSheetState(),
+    openBottomSheet: Boolean,
+    onOpenBottomSheetChange: (Boolean) -> Unit = {}
+) {
+    if (openBottomSheet) {
+        Column(
+            Modifier
+                .background(MaterialTheme.colorScheme.scrim.copy(0.32f))
+                .fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .pointerInput({
+                    onOpenBottomSheetChange.invoke(false)
+                }) {
+                    detectTapGestures {
+                        onOpenBottomSheetChange.invoke(false)
+                    }
+                }
+                .clearAndSetSemantics {}
+            )
+
+            Surface(
+                shape = RoundedCornerShape(24.dp, 24.dp, 0.dp, 0.dp),
+            ) {
+                Column {
+                    AddChronometerPage(
+                        onOpenBottomSheetChange = onOpenBottomSheetChange
+                    )
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surface)
+                            .fillMaxWidth()
+                            .height(
+                                (if (WindowInsets.isImeVisible) WindowInsets.ime
+                                else WindowInsets.navigationBars)
+                                    .asPaddingValues()
+                                    .calculateBottomPadding()
+                            )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AddChronometerPage(
     onOpenBottomSheetChange: (Boolean) -> Unit = {},
 ) {
     val viewModel: AddChronometerViewModel = hiltViewModel()
@@ -103,7 +164,6 @@ fun AddChronometerPage(
                 )
                 focusManager.clearFocus(true)
                 delay(250)
-                sheetState.hide()
                 onOpenBottomSheetChange(false)
             }
         },
@@ -138,9 +198,7 @@ private fun AddChronometerContent(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
     )
     Row(
-        Modifier
-            .navigationBarsPadding()
-            .padding(horizontal = 4.dp),
+        Modifier.padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AddChronometerAction(
