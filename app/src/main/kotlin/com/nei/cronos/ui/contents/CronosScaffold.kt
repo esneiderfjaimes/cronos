@@ -2,7 +2,9 @@
 
 package com.nei.cronos.ui.contents
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
@@ -17,9 +19,12 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import com.nei.cronos.core.designsystem.component.DrawerState
+import com.nei.cronos.core.designsystem.component.DrawerValue
 import com.nei.cronos.core.designsystem.component.NeiDrawer
 import com.nei.cronos.core.designsystem.component.rememberDrawerState
+import kotlinx.coroutines.launch
 
 @Composable
 fun CronosScaffold(
@@ -30,6 +35,7 @@ fun CronosScaffold(
     modalBottomSheetContent: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     NeiDrawer(
         drawerState = drawerState,
         contentDrawer = drawerContent
@@ -38,6 +44,7 @@ fun CronosScaffold(
             topBar = {
                 CronosTopAppBar(
                     drawerState = drawerState,
+                    scope = scope,
                 )
             },
             floatingActionButton = {
@@ -59,6 +66,12 @@ fun CronosScaffold(
             },
             content = content
         )
+    }
+
+    BackHandler(drawerState.currentValue == DrawerValue.Show) {
+        scope.launch {
+            drawerState.animateTo(DrawerValue.Hide)
+        }
     }
 
     // Sheet content

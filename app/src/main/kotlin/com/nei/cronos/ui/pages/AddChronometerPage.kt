@@ -5,6 +5,7 @@
 
 package com.nei.cronos.ui.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -114,6 +115,10 @@ fun AddChronometerPage(
                     )
                 }
             }
+        }
+
+        BackHandler {
+            onOpenBottomSheetChange.invoke(false)
         }
     }
 }

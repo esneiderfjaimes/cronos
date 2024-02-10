@@ -19,13 +19,12 @@ class HomeViewModel @Inject constructor(
     private val localRepository: LocalRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeState())
+    private val _state = MutableStateFlow(HomeState(isLoading = true))
     val state = _state.asStateFlow()
 
     init {
         launchIO {
             // Load chronometers
-            _state.value = _state.value.copy(isLoading = true)
             localRepository.flowAllChronometers()
                 .catch { Log.e(TAG, "chronometerDao.flowAll(): catch:", it) }
                 .collect { chronometers ->

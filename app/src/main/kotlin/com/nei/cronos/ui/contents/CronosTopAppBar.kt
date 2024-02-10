@@ -21,11 +21,11 @@ import androidx.compose.ui.res.stringResource
 import com.nei.cronos.R
 import com.nei.cronos.core.designsystem.component.DrawerState
 import com.nei.cronos.core.designsystem.component.DrawerValue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CronosTopAppBar(drawerState: DrawerState) {
-    val scope = rememberCoroutineScope()
+fun CronosTopAppBar(drawerState: DrawerState, scope: CoroutineScope = rememberCoroutineScope()) {
     CenterAlignedTopAppBar(
         title = { Text(text = stringResource(R.string.app_name)) },
         navigationIcon = {
