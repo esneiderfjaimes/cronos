@@ -1,22 +1,15 @@
 @file:OptIn(
     ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class,
 )
 
 package com.nei.cronos.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -34,8 +27,7 @@ import com.nei.cronos.ui.pages.chronometer.navigation.navigateToChronometer
 
 @Composable
 fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
-    val bottomSheetState = rememberModalBottomSheetState()
-    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var openBottomSheet by rememberSaveable { mutableStateOf(true) }
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "home") {
@@ -43,16 +35,14 @@ fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
             CronosScaffold(
                 drawerState = drawerState,
                 drawerContent = { CronosDrawerContent(drawerState) },
-                bottomSheetState = bottomSheetState,
-                modalBottomSheetContent = {
-                    Column(Modifier.padding(horizontal = 8.dp)) {
-                        AddChronometerPage(
-                            sheetState = bottomSheetState,
-                        ) { openBottomSheet = it }
-                    }
-                },
                 openBottomSheet = openBottomSheet,
                 onOpenBottomSheetChange = { openBottomSheet = it },
+                modalBottomSheetContent = {
+                    AddChronometerPage(
+                        openBottomSheet = openBottomSheet,
+                        onOpenBottomSheetChange = { openBottomSheet = it }
+                    )
+                },
             ) { paddingValues ->
                 HomeContent(
                     paddingValues,

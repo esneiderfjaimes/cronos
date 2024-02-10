@@ -5,14 +5,15 @@ package com.nei.cronos.core.designsystem.component
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,51 +23,48 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import java.text.SimpleDateFormat
-import java.time.LocalTime
-import java.util.Locale
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun rememberTimePickerState(): TimePickerState {
-    val now = LocalTime.now()
-    return rememberTimePickerState(now.hour, now.minute)
-}
+import com.nei.cronos.core.designsystem.theme.CronosTheme
+import com.nei.cronos.core.designsystem.utils.ThemePreviews
 
 @Composable
 fun TimePickerDialog(
-    showTimePicker: Boolean,
-    state: TimePickerState,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit,
+    state: TimePickerPlusState,
 ) {
-    val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
-    var showingPicker by remember { mutableStateOf(true) }
-
     val configuration = LocalConfiguration.current
-    if (showTimePicker) {
+
+    val showingPicker by remember(state.displayMode) {
+        derivedStateOf { state.displayMode == DisplayMode.Picker && configuration.screenHeightDp > 400 }
+    }
+
+    if (state.showingDialog) {
         TimePickerDialog(
             title = if (showingPicker) {
                 "Select Time "
             } else {
                 "Enter Time"
             },
-            onCancel = onCancel,
-            onConfirm = onConfirm,
+            onCancel = {
+                state.hideDialog()
+            },
+            onConfirm = {
+                state.time = Time(
+                    hour = state.timePickerState.hour,
+                    minute = state.timePickerState.minute,
+                    is24hour = state.timePickerState.is24hour
+                )
+                state.hideDialog()
+            },
             toggle = {
                 if (configuration.screenHeightDp > 400) {
-                    IconButton(onClick = { showingPicker = !showingPicker }) {
-                        val icon = if (showingPicker) {
+                    IconButton(onClick = { state.toggleDisplayMode() }) {
+                        val icon = if (state.displayMode == DisplayMode.Picker) {
                             Icons.Outlined.Keyboard
                         } else {
                             Icons.Outlined.Schedule
@@ -83,10 +81,10 @@ fun TimePickerDialog(
                 }
             }
         ) {
-            if (showingPicker && configuration.screenHeightDp > 400) {
-                TimePicker(state = state)
+            if (showingPicker) {
+                TimePicker(state = state.timePickerState)
             } else {
-                TimeInput(state = state)
+                TimeInput(state = state.timePickerState)
             }
         }
     }
@@ -101,9 +99,7 @@ private fun TimePickerDialog(
     toggle: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-    ) {
+    BasicAlertDialog(onDismissRequest = onCancel) {
         Surface(
             modifier = Modifier
                 .wrapContentWidth()
@@ -134,6 +130,30 @@ private fun TimePickerDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TimePickerDialogPreview() {
+    CronosTheme {
+        CronosBackground(modifier = Modifier.fillMaxWidth()) {
+            TimePickerDialog(
+                state = rememberTimePickerPlusState(),
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TimePickerDialogInitialPreview() {
+    CronosTheme {
+        CronosBackground(modifier = Modifier.fillMaxWidth()) {
+            TimePickerDialog(
+                state = rememberTimePickerPlusState(initialDisplayMode = DisplayMode.Input),
+            )
         }
     }
 }
