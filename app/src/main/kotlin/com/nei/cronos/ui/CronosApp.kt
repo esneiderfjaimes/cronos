@@ -19,8 +19,8 @@ import com.nei.cronos.core.designsystem.component.DrawerValue
 import com.nei.cronos.core.designsystem.component.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
-import com.nei.cronos.ui.home.navigation.HOME_ROUTE
-import com.nei.cronos.ui.home.navigation.homeScreen
+import com.nei.cronos.ui.pages.home.navigation.HOME_ROUTE
+import com.nei.cronos.ui.pages.home.navigation.homeScreen
 import com.nei.cronos.ui.pages.chronometer.navigation.chronometerScreen
 import com.nei.cronos.ui.pages.chronometer.navigation.navigateToChronometer
 

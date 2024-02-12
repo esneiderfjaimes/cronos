@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalFoundationApi::class)
 
-package com.nei.cronos.ui.home.navigation
+package com.nei.cronos.ui.pages.home.navigation
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
@@ -15,8 +15,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.nei.cronos.core.designsystem.component.DrawerState
 import com.nei.cronos.core.designsystem.navigation.Default
-import com.nei.cronos.ui.home.HomeRoute
-import com.nei.cronos.ui.home.OnChronometerClick
+import com.nei.cronos.ui.pages.home.HomeRoute
+import com.nei.cronos.ui.pages.home.OnChronometerClick
 
 const val HOME_ROUTE = "home"
 

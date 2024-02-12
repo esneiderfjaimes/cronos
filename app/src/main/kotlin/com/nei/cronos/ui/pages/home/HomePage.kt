@@ -2,7 +2,7 @@
     ExperimentalFoundationApi::class,
 )
 
-package com.nei.cronos.ui.home
+package com.nei.cronos.ui.pages.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -33,7 +33,7 @@ import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.domain.models.SectionUi
 import com.nei.cronos.ui.contents.CronosDrawerContent
 import com.nei.cronos.ui.contents.CronosScaffold
-import com.nei.cronos.ui.pages.AddChronometerPage
+import com.nei.cronos.ui.pages.addchronometer.AddChronometerPage
 import com.nei.cronos.utils.Mocks
 
 typealias OnChronometerClick = (Long) -> Unit

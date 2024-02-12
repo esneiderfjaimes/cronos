@@ -6,9 +6,23 @@ import com.nei.cronos.domain.models.ChronometerUi
 fun ChronometerEntity.toUi() = ChronometerUi(
     id = id,
     title = title,
+    createdAt = createdAt,
     startDate = startDate,
     fromDate = fromDate,
     format = format,
+    sectionId = sectionId,
+    isActive = isActive,
+    isArchived = isArchived
+)
+
+fun ChronometerUi.toDomain() = ChronometerEntity(
+    id = id,
+    title = title,
+    createdAt = createdAt,
+    startDate = startDate,
+    fromDate = fromDate,
+    format = format,
+    sectionId = sectionId,
     isActive = isActive,
     isArchived = isArchived
 )

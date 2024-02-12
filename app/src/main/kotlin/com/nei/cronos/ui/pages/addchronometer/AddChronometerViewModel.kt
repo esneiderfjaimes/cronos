@@ -1,4 +1,4 @@
-package com.nei.cronos.ui.pages
+package com.nei.cronos.ui.pages.addchronometer
 
 import androidx.lifecycle.ViewModel
 import com.nei.cronos.core.data.LocalRepository

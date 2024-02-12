@@ -1,31 +1,35 @@
 package com.nei.cronos.utils
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.res.stringResource
 import com.nei.cronos.R
-import com.nei.cronos.core.database.mappers.toUi
 import com.nei.cronos.core.database.models.ChronometerEntity
+import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.domain.models.SectionUi
 
 object Mocks {
 
     val previewSections
+        @Composable
+        @ReadOnlyComposable
         get() = listOf(
-            previewSection
-        )
-
-    val previewSection: SectionUi
-        get() = SectionUi(
-            id = -1,
-            name = "default",
-            orderChronometerIds = listOf(),
-            chronometers = listOf(
-                firstChronometer.toUi()
+            SectionUi(
+                id = -1,
+                name = "default",
+                orderChronometerIds = listOf(),
+                chronometers = listOf(
+                    chronometerPreview
+                )
             )
         )
 
-    val firstChronometer: ChronometerEntity
-        get() = ChronometerEntity(
-            title = "since I've been using the app",
+    val chronometerPreview: ChronometerUi
+        @Composable
+        @ReadOnlyComposable
+        get() = ChronometerUi(
+            title = stringResource(R.string.first_chronometer_title)
         )
 
     fun getFirstChronometer(context: Context): ChronometerEntity {

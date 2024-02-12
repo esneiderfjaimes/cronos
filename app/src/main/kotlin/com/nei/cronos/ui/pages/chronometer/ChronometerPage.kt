@@ -36,7 +36,9 @@ import com.nei.cronos.core.designsystem.component.NeiIconButton
 import com.nei.cronos.core.designsystem.component.NeiLoading
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.format.EditFormat
+import com.nei.cronos.utils.Mocks
 
 @Composable
 fun ChronometerRoute(
@@ -58,8 +60,8 @@ internal fun ChronometerScreen(
     state: ChronometerUiState,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
-    onUpdateChronometer: (ChronometerEntity) -> Unit = {},
-    onNewLapClick: (ChronometerEntity) -> Unit = {},
+    onUpdateChronometer: (ChronometerUi) -> Unit = {},
+    onNewLapClick: (ChronometerUi) -> Unit = {},
 ) {
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
@@ -109,8 +111,8 @@ internal fun ChronometerScreen(
 
 @Composable
 fun ChronometerBody(
-    chronometer: ChronometerEntity,
-    onUpdateChronometer: (ChronometerEntity) -> Unit,
+    chronometer: ChronometerUi,
+    onUpdateChronometer: (ChronometerUi) -> Unit,
 ) {
     ChronometerChipRunning(
         time = chronometer.fromDate,
@@ -133,10 +135,12 @@ fun ChronometerBody(
 @Composable
 private fun ChronometerPreview() {
     CronosTheme {
+MaterialTheme.typography.titleMedium
+
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
                 state = ChronometerUiState.Success(
-                    ChronometerEntity(title = "since I've been using the app")
+                    Mocks.chronometerPreview
                 ),
                 onBackClick = {},
                 onSaveClick = {}

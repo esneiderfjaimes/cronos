@@ -1,4 +1,4 @@
-package com.nei.cronos.ui.home
+package com.nei.cronos.ui.pages.home
 
 import android.util.Log
 import androidx.compose.runtime.Stable
@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val localRepository: LocalRepository
+    localRepository: LocalRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState(isLoading = true))
@@ -35,32 +35,6 @@ class HomeViewModel @Inject constructor(
             .onEach { updateState { copy(isLoading = false, sections = it) } }
             .catch { Log.e(TAG, "flowAllSections(): catch:", it) }
             .launchIn(viewModelScope)
-    }
-
-    private suspend fun mockIfEmpty() {
-        localRepository.insertChronometer(
-            ChronometerEntity(
-                title = "since I've been using the app",
-            ),
-            ChronometerEntity(
-                title = "avocado 🥑",
-                allDateTime = ZonedDateTime.of(
-                    /* year = */ 2015,
-                    /* month = */ 9,
-                    /* dayOfMonth = */ 2,
-                    /* hour = */ 0,
-                    /* minute = */ 0,
-                    /* second = */ 0,
-                    /* nanoOfSecond = */ 0,
-                    /* zone = */ ZoneId.systemDefault()
-                ),
-                format = ChronometerFormat.DefaultFormat.copy(
-                    showYear = true,
-                    showMonth = true,
-                    showWeek = true
-                )
-            )
-        )
     }
 
     private fun updateState(block: HomeState.() -> HomeState) {

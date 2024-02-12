@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.nei.cronos.core.data.LocalRepository
+import com.nei.cronos.core.database.mappers.toDomain
+import com.nei.cronos.core.database.mappers.toUi
 import com.nei.cronos.core.database.models.ChronometerEntity
+import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
 import com.nei.cronos.utils.launchIO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,16 +34,16 @@ class ChronometerViewModel @Inject constructor(
                 val uiState = _state.value
                 _state.value = chronometerWithLaps?.let {
                     if (uiState is ChronometerUiState.Success) {
-                        uiState.copy(chronometer = it.chronometer)
+                        uiState.copy(chronometer = it.chronometer.toUi())
                     } else {
-                        ChronometerUiState.Success(chronometer = it.chronometer)
+                        ChronometerUiState.Success(chronometer = it.chronometer.toUi())
                     }
                 } ?: ChronometerUiState.Error
             }
         }
     }
 
-    fun onUpdateChronometer(chronometer: ChronometerEntity) {
+    fun onUpdateChronometer(chronometer: ChronometerUi) {
         launchIO {
             val uiState = _state.value
             if (uiState is ChronometerUiState.Success) {
@@ -54,15 +57,15 @@ class ChronometerViewModel @Inject constructor(
             val uiState = _state.value
             if (uiState is ChronometerUiState.Success) {
                 if (uiState.enabledSaveButton) {
-                    localRepository.updateChronometer(uiState.chronometer)
+                    localRepository.updateChronometer(uiState.chronometer.toDomain())
                 }
             }
         }
     }
 
-    fun onNewLapClick(chronometer: ChronometerEntity) {
+    fun onNewLapClick(chronometer: ChronometerUi) {
         launchIO {
-            localRepository.registerLapIn(chronometer)
+            localRepository.registerLapIn(chronometer.toDomain())
         }
     }
 
@@ -74,8 +77,8 @@ class ChronometerViewModel @Inject constructor(
 sealed interface ChronometerUiState {
 
     data class Success(
-        val chronometer: ChronometerEntity,
-        private val chronometerPreviews: ChronometerEntity = chronometer,
+        val chronometer: ChronometerUi,
+        private val chronometerPreviews: ChronometerUi = chronometer,
     ) : ChronometerUiState {
         val enabledSaveButton: Boolean = chronometerPreviews.format != chronometer.format
     }

@@ -3,7 +3,7 @@
     ExperimentalLayoutApi::class
 )
 
-package com.nei.cronos.ui.pages
+package com.nei.cronos.ui.pages.addchronometer
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background

@@ -33,7 +33,7 @@ data class ChronometerEntity(
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "created_at")
-    val createdAt: ZonedDateTime = ZonedDateTime.now(ZoneId.systemDefault()),
+    val createdAt: ZonedDateTime,
     @ColumnInfo(name = "start_date")
     val startDate: ZonedDateTime,
     // mutable, represents last lap time
@@ -57,6 +57,7 @@ data class ChronometerEntity(
         isArchived: Boolean = false
     ) : this(
         title = title,
+        createdAt = ZonedDateTime.now(ZoneId.systemDefault()),
         fromDate = allDateTime,
         startDate = allDateTime,
         format = format,
