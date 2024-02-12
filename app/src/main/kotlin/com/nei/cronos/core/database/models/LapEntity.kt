@@ -3,6 +3,7 @@ package com.nei.cronos.core.database.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.ZonedDateTime
 
@@ -15,6 +16,9 @@ import java.time.ZonedDateTime
             childColumns = ["chronometer_id"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["chronometer_id"]),
     ]
 )
 data class LapEntity(

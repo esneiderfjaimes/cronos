@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -22,16 +23,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nei.cronos.core.database.models.ChronometerEntity
+import com.nei.cronos.core.database.models.SectionEntity
 import com.nei.cronos.core.designsystem.component.ChronometerListItem
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.DrawerState
 import com.nei.cronos.core.designsystem.component.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.domain.models.SectionUi
 import com.nei.cronos.ui.contents.CronosDrawerContent
 import com.nei.cronos.ui.contents.CronosScaffold
 import com.nei.cronos.ui.pages.AddChronometerPage
+import com.nei.cronos.utils.Mocks
 
 typealias OnChronometerClick = (Long) -> Unit
 
@@ -41,7 +44,7 @@ fun HomeRoute(
     onChronometerClick: OnChronometerClick,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    var openBottomSheet by rememberSaveable { mutableStateOf(true) }
+    var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val state by viewModel.state.collectAsState()
     HomeScreen(
         drawerState = drawerState,
@@ -58,7 +61,7 @@ private fun HomeScreen(
     openBottomSheet: Boolean = false,
     onOpenBottomSheetChange: (Boolean) -> Unit = {},
     state: HomeViewModel.HomeState,
-    onChronometerClick: OnChronometerClick ={},
+    onChronometerClick: OnChronometerClick = {},
 ) {
     CronosScaffold(
         drawerState = drawerState,
@@ -91,12 +94,16 @@ private fun HomeContent(
         return
     }
 
-    if (state.chronometers.isEmpty()) {
+    if (state.sections.isEmpty()) {
         EmptyChronometersContent(paddingValues)
         return
     }
 
-    ChronometersContent(state.chronometers, paddingValues, onChronometerClick = onChronometerClick)
+    SectionsContent(
+        sections = state.sections,
+        paddingValues = paddingValues,
+        onChronometerClick = onChronometerClick
+    )
 }
 
 @Composable
@@ -120,24 +127,47 @@ private fun EmptyChronometersContent(paddingValues: PaddingValues = PaddingValue
 }
 
 @Composable
-private fun ChronometersContent(
-    chronometers: List<ChronometerEntity> = emptyList(),
+private fun SectionsContent(
+    sections: List<SectionUi> = emptyList(),
     paddingValues: PaddingValues = PaddingValues(),
     onChronometerClick: OnChronometerClick,
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
-        contentPadding = paddingValues
+        contentPadding = paddingValues,
     ) {
-        items(chronometers, key = { it.id }) { chronometer ->
-            ChronometerListItem(
-                time = chronometer.fromDate,
-                title = chronometer.title,
-                format = chronometer.format
-            ) {
-                onChronometerClick.invoke(chronometer.id)
-            }
+        sections.forEach { section ->
+            sectionContent(
+                section = section,
+                onChronometerClick = onChronometerClick
+            )
+        }
+    }
+}
+
+private fun LazyListScope.sectionContent(
+    section: SectionUi,
+    onChronometerClick: OnChronometerClick
+) {
+    if (section.id != SectionEntity.NONE_SECTION_ID) {
+        item(
+            key = "h${section.id}",
+            contentType = section.name
+        ) {
+            Text(text = section.name)
+        }
+    }
+    items(
+        items = section.chronometers,
+        key = { "s${section.id}c${it.id}" }
+    ) { chronometer ->
+        ChronometerListItem(
+            time = chronometer.fromDate,
+            title = chronometer.title,
+            format = chronometer.format
+        ) {
+            onChronometerClick.invoke(chronometer.id)
         }
     }
 }
@@ -160,7 +190,7 @@ fun HomeScreenWithEmptyChronometersPreview() {
     CronosTheme {
         CronosBackground {
             HomeScreen(
-                state = HomeViewModel.HomeState(chronometers = emptyList()),
+                state = HomeViewModel.HomeState(sections = emptyList()),
             )
         }
     }
@@ -173,9 +203,7 @@ fun HomeScreenPreview() {
         CronosBackground {
             HomeScreen(
                 state = HomeViewModel.HomeState(
-                    chronometers = listOf(
-                        ChronometerEntity(title = "since I've been using the app")
-                    )
+                    sections = Mocks.previewSections
                 ),
             )
         }

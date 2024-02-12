@@ -3,8 +3,8 @@ package com.nei.cronos.core.database.di
 import android.content.Context
 import com.nei.cronos.core.database.CronosDatabase
 import com.nei.cronos.core.database.daos.ChronometerDao
-import com.nei.cronos.core.database.daos.ChronometerWithLapsDao
 import com.nei.cronos.core.database.daos.LapDao
+import com.nei.cronos.core.database.daos.SectionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,6 +22,11 @@ class DatabaseModule {
     ): CronosDatabase = CronosDatabase.getDatabase(context)
 
     @Provides
+    fun sectionDaoProvider(
+        database: CronosDatabase
+    ): SectionDao = database.sectionDao()
+
+    @Provides
     fun chronometerDaoProvider(
         database: CronosDatabase,
     ): ChronometerDao = database.chronometerDao()
@@ -30,9 +35,4 @@ class DatabaseModule {
     fun lapDaoProvider(
         database: CronosDatabase,
     ): LapDao = database.lapDao()
-
-    @Provides
-    fun chronometerWithLapDaoProvider(
-        database: CronosDatabase
-    ): ChronometerWithLapsDao = database.chronometerWithLapsDao()
 }

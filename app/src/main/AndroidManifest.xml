@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TheLastTime.Splash">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.TheLastTime.Splash"
             android:windowSoftInputMode="adjustResize">

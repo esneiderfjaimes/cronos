@@ -25,7 +25,7 @@ class ChronometerViewModel @Inject constructor(
 
     init {
         launchIO {
-            localRepository.flowChronometerWithLapsById(args.chronometerId).catch {
+            localRepository.chronometerWithLapsById(args.chronometerId).catch {
                 Log.e(TAG, "flowChronometerWithLapsById(${args.chronometerId}): catch:", it)
             }.collect { chronometerWithLaps ->
                 val uiState = _state.value

@@ -5,12 +5,12 @@ import com.nei.cronos.core.database.models.ChronometerFormat
 
 class ChronometerFormatConverter {
     @TypeConverter
-    fun chronometerFormatToString(chronometerFormat: ChronometerFormat): Int {
+    fun formatToString(chronometerFormat: ChronometerFormat): Int {
         return chronometerFormat.toFlags()
     }
 
     @TypeConverter
-    fun stringToChronometerFormat(flags: Int): ChronometerFormat {
+    fun stringToFormat(flags: Int): ChronometerFormat {
         return ChronometerFormat.fromFlags(flags)
     }
 }

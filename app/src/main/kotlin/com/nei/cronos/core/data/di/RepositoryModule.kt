@@ -13,6 +13,6 @@ import dagger.hilt.components.SingletonComponent
 abstract class RepositoryModule {
     @Binds
     abstract fun localRepositoryBind(
-        repositoryImpl: LocalRepositoryImpl
+        localRepositoryImpl: LocalRepositoryImpl
     ): LocalRepository
 }
