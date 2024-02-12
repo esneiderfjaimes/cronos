@@ -6,9 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nei.cronos.core.data.LocalRepository
 import com.nei.cronos.core.database.mappers.toUi
-import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.models.ChronometerFormat
-import com.nei.cronos.core.database.models.SectionWithChronometers
 import com.nei.cronos.domain.models.SectionUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +14,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel

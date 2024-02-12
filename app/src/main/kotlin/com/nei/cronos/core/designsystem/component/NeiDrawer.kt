@@ -2,6 +2,7 @@
 
 package com.nei.cronos.core.designsystem.component
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -9,28 +10,41 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
+import androidx.compose.ui.unit.fontscaling.MathUtils
+import com.nei.cronos.core.designsystem.theme.CronosTheme
+import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.ui.contents.CronosDrawerContent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 enum class DrawerValue { Show, Hide }
 typealias DrawerState = AnchoredDraggableState<DrawerValue>
@@ -53,8 +67,9 @@ const val paddingDrawer = 92
 @Composable
 fun NeiDrawer(
     drawerState: DrawerState = rememberDrawerState(),
+    scope: CoroutineScope = rememberCoroutineScope(),
     contentDrawer: @Composable ColumnScope.() -> Unit,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(@Composable () -> Unit) -> Unit
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -68,7 +83,7 @@ fun NeiDrawer(
         })
         val shapeContent = with(LocalDensity.current) { 32.dp.toPx() }
 
-        Box(
+        Spacer(
             modifier = Modifier
                 .fillMaxSize()
                 .anchoredDraggable(state = drawerState, orientation = Orientation.Horizontal)
@@ -93,7 +108,7 @@ fun NeiDrawer(
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
 
-        Box(modifier = Modifier
+        Spacer(modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
                 onGraphicsLayer(
@@ -105,10 +120,9 @@ fun NeiDrawer(
                 )
             }
             .background(MaterialTheme.colorScheme.background.copy(0.5f))
-            .anchoredDraggable(state = drawerState, orientation = Orientation.Horizontal)
         )
 
-        Box(modifier = Modifier
+        Spacer(modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
                 onGraphicsLayer(
@@ -120,26 +134,51 @@ fun NeiDrawer(
                 )
             }
             .background(MaterialTheme.colorScheme.background.copy(0.75f))
-            .anchoredDraggable(state = drawerState, orientation = Orientation.Horizontal)
         )
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                val corners = if (drawerState.requireOffset() == 0f) 0f else shapeContent
-                onGraphicsLayer(
-                    offset = drawerState.requireOffset(),
-                    scale = 0.8f,
-                    drawerWidth = drawerWidth,
-                    corners = corners
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    val corners = if (drawerState.requireOffset() == 0f) 0f else shapeContent
+                    onGraphicsLayer(
+                        offset = drawerState.requireOffset(),
+                        scale = 0.8f,
+                        drawerWidth = drawerWidth,
+                        corners = corners
+                    )
+                }
+        ) {
+            content.invoke(this) {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(75.dp)
+                        .then(
+                            if (drawerState.currentValue == DrawerValue.Show) {
+                                Modifier
+                                    .pointerInput(Unit) {
+                                        detectTapGestures {
+                                            scope.launch {
+                                                drawerState.animateTo(DrawerValue.Hide)
+                                            }
+                                        }
+                                    }
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .anchoredDraggable(
+                            state = drawerState,
+                            orientation = Orientation.Horizontal
+                        )
                 )
             }
-            .anchoredDraggable(state = drawerState, orientation = Orientation.Horizontal),
-            content = content
-        )
+        }
     }
 }
 
+@SuppressLint("RestrictedApi")
 private fun GraphicsLayerScope.onGraphicsLayer(
     offset: Float,
     translationXDiv: Float = 1f,
@@ -148,10 +187,44 @@ private fun GraphicsLayerScope.onGraphicsLayer(
     corners: Float
 ) {
     translationX = offset / translationXDiv
-    val scaleTransform = lerp(1f, scale, offset / drawerWidth)
+    val scaleTransform = MathUtils.lerp(1f, scale, offset / drawerWidth)
     scaleX = scaleTransform
     scaleY = scaleTransform
     clip = true
     shadowElevation = corners
     shape = RoundedCornerShape(corners)
+}
+
+@ThemePreviews
+@Composable
+fun NeiDrawerPreview() {
+    val rememberDrawerState = rememberDrawerState(DrawerValue.Show)
+    CronosTheme {
+        CronosBackground {
+            NeiDrawer(
+                drawerState = rememberDrawerState,
+                contentDrawer = { CronosDrawerContent(rememberDrawerState) }) {
+                Scaffold { paddingValuers ->
+                    Text(text = "Content", modifier = Modifier.padding(paddingValuers))
+                }
+            }
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun NeiDrawerHidePreview() {
+    val rememberDrawerState = rememberDrawerState(DrawerValue.Hide)
+    CronosTheme {
+        CronosBackground {
+            NeiDrawer(
+                drawerState = rememberDrawerState,
+                contentDrawer = { CronosDrawerContent(rememberDrawerState) }
+            ) { draggableContent ->
+                Text(text = "Content")
+                draggableContent.invoke()
+            }
+        }
+    }
 }

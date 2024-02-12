@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
@@ -101,7 +103,6 @@ fun IconButton(
                         )
                 }
             )
-
             .background(color = colors.containerColor(enabled))
             .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
@@ -110,11 +111,14 @@ fun IconButton(
 
         val contentColor = colors.contentColor(enabled)
         CompositionLocalProvider(LocalContentColor provides contentColor) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp),
-                contentAlignment = Alignment.Center
-            ) { content.invoke() }
+            if (!active) {
+                Box(
+                    modifier = Modifier.size(40.dp),
+                    contentAlignment = Alignment.Center
+                ) { content.invoke() }
+            } else {
+                Spacer(modifier = Modifier.width(16.dp))
+            }
             trailingIcon.invoke(this)
         }
     }
@@ -161,7 +165,26 @@ fun IconButtonColors.contentColor(enabled: Boolean): Color =
 @ThemePreviews
 @Composable
 fun AddChronometerActionPreview() {
-    var formattedValue by remember { mutableStateOf<String?>("null") }
+    var formattedValue by remember { mutableStateOf<String?>("00:00") }
+    CronosTheme {
+        CronosBackground {
+            AddChronometerAction(
+                formattedValue = formattedValue,
+                onClick = { formattedValue = "00:00" },
+                onCloseClick = { formattedValue = null }
+            ) {
+                Icon(Icons.Outlined.Schedule, contentDescription = null)
+            }
+        }
+    }
+}
+
+
+
+@ThemePreviews
+@Composable
+fun AddChronometerActionNullPreview() {
+    var formattedValue by remember { mutableStateOf<String?>(null) }
     CronosTheme {
         CronosBackground {
             AddChronometerAction(

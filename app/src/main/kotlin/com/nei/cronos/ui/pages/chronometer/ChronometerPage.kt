@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.designsystem.component.ChronometerChipRunning
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiIconButton

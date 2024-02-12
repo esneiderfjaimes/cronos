@@ -8,7 +8,6 @@ package com.nei.cronos.ui.pages.addchronometer
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -102,7 +101,7 @@ fun AddChronometerPage(
                     AddChronometerPage(
                         onOpenBottomSheetChange = onOpenBottomSheetChange
                     )
-                    Box(
+                    Spacer(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.surface)
                             .fillMaxWidth()
@@ -229,7 +228,7 @@ private fun AddChronometerContent(
             Icon(Icons.Outlined.CalendarToday, contentDescription = null)
         }
         AddChronometerAction(
-            formattedValue = timeState.time?.let { "${it.hour}:${it.minute}" },
+            formattedValue = timeState.time?.format(),
             onClick = { timeState.showingDialog = true },
             onCloseClick = { timeState.time = null }
         ) {

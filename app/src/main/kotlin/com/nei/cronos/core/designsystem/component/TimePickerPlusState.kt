@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 @ExperimentalMaterial3Api
@@ -62,7 +63,14 @@ data class Time(
     val hour: Int,
     val minute: Int,
     val is24hour: Boolean
-)
+) {
+    fun format(): String {
+        val localTime = LocalTime.of(hour, minute)
+        val pattern = if (is24hour) "HH:mm" else "hh:mm a"
+        val formatter = DateTimeFormatter.ofPattern(pattern)
+        return localTime.format(formatter)
+    }
+}
 
 internal val is24HourFormat: Boolean
     @Composable

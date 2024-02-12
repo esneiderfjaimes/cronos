@@ -38,8 +38,9 @@ fun CronosScaffold(
     val scope = rememberCoroutineScope()
     NeiDrawer(
         drawerState = drawerState,
+        scope = scope,
         contentDrawer = drawerContent
-    ) {
+    ) { draggableContent ->
         Scaffold(
             topBar = {
                 CronosTopAppBar(
@@ -64,8 +65,10 @@ fun CronosScaffold(
                     }
                 }
             },
-            content = content
-        )
+        ) {
+            content.invoke(it)
+            draggableContent.invoke()
+        }
     }
 
     BackHandler(drawerState.currentValue == DrawerValue.Show) {
