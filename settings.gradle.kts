@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "The Last Time"
+rootProject.name = "Last Time"
 include(":app")
  
