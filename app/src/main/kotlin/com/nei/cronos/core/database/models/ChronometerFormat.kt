@@ -9,6 +9,7 @@ data class ChronometerFormat(
     val showMonth: Boolean = false,
     val showYear: Boolean = false,
     val hideZeros: Boolean = false,
+    val compactTimeEnabled: Boolean = false
 ) {
     fun toFlags(): Int {
         var flags = 0
@@ -21,9 +22,16 @@ data class ChronometerFormat(
         if (showMonth) flags = flags or (1 shl 5)
         if (showYear) flags = flags or (1 shl 6)
         if (hideZeros) flags = flags or (1 shl 7)
+        if (compactTimeEnabled) flags = flags or (1 shl 8)
 
         return flags
     }
+
+    val timeFlagsEnabled: Boolean
+        get() = showMinute && showHour
+
+    val isAllFlagsDisabled: Boolean = !showSecond && !showMinute && !showHour
+            && !showDay && !showWeek && !showMonth && !showYear
 
     companion object {
 
@@ -36,7 +44,8 @@ data class ChronometerFormat(
                 showWeek = (flags and (1 shl 4)) != 0,
                 showMonth = (flags and (1 shl 5)) != 0,
                 showYear = (flags and (1 shl 6)) != 0,
-                hideZeros = (flags and (1 shl 7)) != 0
+                hideZeros = (flags and (1 shl 7)) != 0,
+                compactTimeEnabled = (flags and (1 shl 8)) != 0,
             )
         }
 

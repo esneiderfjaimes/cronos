@@ -1,5 +1,12 @@
 package com.nei.cronos.ui.pages.format
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
@@ -73,6 +80,17 @@ fun EditFormat(
             checked = format.hideZeros,
             onCheckedChange = { onUpdate(format.copy(hideZeros = it)) }
         )
+        AnimatedVisibility(
+            visible = format.timeFlagsEnabled,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+        ) {
+            SwitchFormat(
+                text = "Compact time",
+                checked = format.compactTimeEnabled,
+                onCheckedChange = { onUpdate(format.copy(compactTimeEnabled = it)) }
+            )
+        }
     }
 }
 

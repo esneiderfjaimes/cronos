@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.ChronometerChipRunning
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiIconButton
@@ -45,8 +46,10 @@ fun ChronometerRoute(
     viewModel: ChronometerViewModel = hiltViewModel(),
 ) {
     val state: ChronometerUiState by viewModel.state.collectAsStateWithLifecycle()
+    val time by viewModel.currentTime.collectAsStateWithLifecycle()
     ChronometerScreen(
         state = state,
+        time = time,
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSaveClick,
         onUpdateChronometer = viewModel::onUpdateChronometer,
@@ -57,6 +60,7 @@ fun ChronometerRoute(
 @Composable
 internal fun ChronometerScreen(
     state: ChronometerUiState,
+    time: String = "",
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     onUpdateChronometer: (ChronometerUi) -> Unit = {},
@@ -94,6 +98,10 @@ internal fun ChronometerScreen(
                 ChronometerUiState.Error -> Text(text = "Error")
                 ChronometerUiState.Loading -> NeiLoading()
                 is ChronometerUiState.Success -> {
+                    ChronometerChip(
+                        text = time.ifBlank { "😅" },
+                        modifier = Modifier.padding(16.dp)
+                    )
                     ChronometerBody(
                         chronometer = state.chronometer,
                         onUpdateChronometer = onUpdateChronometer
@@ -113,11 +121,6 @@ fun ChronometerBody(
     chronometer: ChronometerUi,
     onUpdateChronometer: (ChronometerUi) -> Unit,
 ) {
-    ChronometerChipRunning(
-        time = chronometer.fromDate,
-        format = chronometer.format,
-        modifier = Modifier.padding(16.dp),
-    )
     Text(text = chronometer.title)
     Spacer(modifier = Modifier.height(32.dp))
     Text(text = "Format", style = MaterialTheme.typography.titleMedium)
@@ -134,7 +137,7 @@ fun ChronometerBody(
 @Composable
 private fun ChronometerPreview() {
     CronosTheme {
-MaterialTheme.typography.titleMedium
+        MaterialTheme.typography.titleMedium
 
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
