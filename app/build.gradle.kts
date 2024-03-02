@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.nei.cronos"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "0.1.0-beta"
@@ -26,6 +26,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
