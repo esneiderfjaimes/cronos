@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.nei.cronos.core.designsystem.component.CronosBackground
-import com.nei.cronos.core.designsystem.component.DrawerState
-import com.nei.cronos.core.designsystem.component.DrawerValue
-import com.nei.cronos.core.designsystem.component.rememberDrawerState
+import com.nei.cronos.core.designsystem.component.drawer.DrawerState
+import com.nei.cronos.core.designsystem.component.drawer.DrawerValue
+import com.nei.cronos.core.designsystem.component.drawer.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import kotlinx.coroutines.launch
@@ -39,12 +39,10 @@ fun CronosDrawerContent(
         label = "Home",
         selected = true,
     ) { scope.launch { drawerState.animateTo(DrawerValue.Hide) } }
-    repeat(3) {
-        NavigationDrawerItem(
-            imageVector = Icons.Rounded.Favorite,
-            label = "Module in construction. \uD83D\uDEA7"
-        ) { scope.launch { drawerState.animateTo(DrawerValue.Hide) } }
-    }
+    NavigationDrawerItem(
+        imageVector = Icons.Rounded.Favorite,
+        label = "In construction. \uD83D\uDEA7"
+    ) { scope.launch { drawerState.animateTo(DrawerValue.Hide) } }
 }
 
 @Composable

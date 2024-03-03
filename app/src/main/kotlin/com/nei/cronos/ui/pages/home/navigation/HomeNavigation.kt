@@ -13,7 +13,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.nei.cronos.core.designsystem.component.DrawerState
+import com.nei.cronos.core.designsystem.component.drawer.DrawerState
 import com.nei.cronos.core.designsystem.navigation.Default
 import com.nei.cronos.ui.pages.home.HomeRoute
 import com.nei.cronos.ui.pages.home.OnChronometerClick

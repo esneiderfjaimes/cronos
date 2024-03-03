@@ -26,8 +26,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nei.cronos.core.database.models.SectionEntity
 import com.nei.cronos.core.designsystem.component.ChronometerListItem
 import com.nei.cronos.core.designsystem.component.CronosBackground
-import com.nei.cronos.core.designsystem.component.DrawerState
-import com.nei.cronos.core.designsystem.component.rememberDrawerState
+import com.nei.cronos.core.designsystem.component.drawer.DrawerState
+import com.nei.cronos.core.designsystem.component.drawer.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.domain.models.SectionUi
