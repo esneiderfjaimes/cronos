@@ -3,10 +3,7 @@
 package com.nei.cronos.ui.contents
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -27,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import com.nei.cronos.R
 import com.nei.cronos.core.designsystem.component.CronosBackground
@@ -41,7 +37,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CronosTopAppBar(
-    modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(),
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
@@ -49,21 +44,6 @@ fun CronosTopAppBar(
     val isDrawerHideAndStatic by remember { derivedStateOf { drawerState.requireOffset() == 0f } }
 
     CenterAlignedTopAppBar(
-        modifier = modifier
-            .anchoredDraggable(
-                state = drawerState,
-                orientation = Orientation.Horizontal
-            )
-            .then(
-                if (isDrawerHideAndStatic) Modifier
-                else Modifier.pointerInput(Unit) {
-                    detectTapGestures {
-                        scope.launch {
-                            drawerState.animateTo(DrawerValue.Hide)
-                        }
-                    }
-                }
-            ),
         title = { Text(text = stringResource(R.string.app_name)) },
         navigationIcon = {
             TooltipBox(

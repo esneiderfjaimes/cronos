@@ -11,55 +11,60 @@ import androidx.compose.ui.unit.fontscaling.MathUtils
 @SuppressLint("RestrictedApi")
 internal fun GraphicsLayerScope.drawAnimation(
     offset: Float,
-    scaleStart: Float = 1f,
-    scaleEnd: Float,
-    percentageTranslationShadow: Float = 0f,
+    isLandscape: Boolean,
+    translationXExtra: Float = 0f,
+    panelOffsetX: Float,
     drawerWidth: Float,
-    color: Color,
-    corners: Dp = 32.dp,
-    panelOffsetX: Float
+    percentageTranslationShadow: Float = 0f,
+    scaleStart: Float = 1f,
+    scaleEnd: Float
 ) {
     val amount = offset / panelOffsetX // progress
 
     shadowTranslationEffect(
         amount = amount,
+        isLandscape = isLandscape,
+        translationXExtra = translationXExtra,
         offset = offset,
         percentageTranslationShadow = percentageTranslationShadow,
         drawerWidth = drawerWidth,
         panelOffsetX = panelOffsetX
     )
 
-    scaleAndShape(
+    scaleEffect(
         amount = amount,
         scaleStart = scaleStart,
-        scaleEnd = scaleEnd,
-        color = color,
-        corners = corners
+        scaleEnd = scaleEnd
     )
 }
 
 @SuppressLint("RestrictedApi")
 internal fun GraphicsLayerScope.shadowTranslationEffect(
     amount: Float,
+    isLandscape: Boolean,
+    translationXExtra: Float = 0f,
     offset: Float,
     percentageTranslationShadow: Float = 0f,
     drawerWidth: Float,
     panelOffsetX: Float
 ) {
     // Shadow translation effect
-    val transStartX = 0f
-    val transEndX = (panelOffsetX - drawerWidth) * percentageTranslationShadow
-    val calTranslationX = MathUtils.lerp(transStartX, transEndX, amount)
-    translationX = offset - calTranslationX
+    translationX = if (isLandscape) {
+        val translationXExtraPx = MathUtils.lerp(0f, translationXExtra, amount)
+        offset + translationXExtraPx
+    } else {
+        val transStartX = 0f
+        val transEndX = (panelOffsetX - drawerWidth) * percentageTranslationShadow
+        val calTranslationX = MathUtils.lerp(transStartX, transEndX, amount)
+        offset - calTranslationX
+    }
 }
 
 @SuppressLint("RestrictedApi")
-internal fun GraphicsLayerScope.scaleAndShape(
+internal fun GraphicsLayerScope.scaleEffect(
     amount: Float,
     scaleStart: Float = 1f,
     scaleEnd: Float,
-    color: Color,
-    corners: Dp = 32.dp,
 ) {
     // Scale
     val scaleTransform = MathUtils.lerp(scaleStart, scaleEnd, amount)
@@ -68,9 +73,16 @@ internal fun GraphicsLayerScope.scaleAndShape(
     translationX -= (borderWidth / 2)
     scaleX = scaleTransform
     scaleY = scaleTransform
+}
 
-    clip = true
-    spotShadowColor = color
+@SuppressLint("RestrictedApi")
+internal fun GraphicsLayerScope.shadowEffect(
+    corners: Dp,
+    shadowColor: Color
+) {
+    clip = corners > 0.dp
+    spotShadowColor = shadowColor
+    ambientShadowColor = shadowColor
     shadowElevation = corners.toPx()
     shape = RoundedCornerShape(corners)
 }

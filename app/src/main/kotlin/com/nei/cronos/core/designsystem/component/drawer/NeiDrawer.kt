@@ -2,7 +2,7 @@
 
 package com.nei.cronos.core.designsystem.component.drawer
 
-import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,11 +39,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.core.designsystem.utils.transparentBackground
 import com.nei.cronos.ui.contents.CronosDrawerContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -67,26 +72,33 @@ val DrawerWidth = 300.dp
 val PanelWidthHide = 72.dp
 val DefaultDrawerShape = 32.dp
 
-@SuppressLint("RestrictedApi")
 @Composable
 fun NeiDrawer(
-    drawerState: DrawerState = rememberDrawerState(),
+    state: DrawerState = rememberDrawerState(),
     scope: CoroutineScope = rememberCoroutineScope(),
     contentDrawer: @Composable ColumnScope.() -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
     val shadowColor = if (isSystemInDarkTheme()) Color.White else Color.Black
     val drawerWidth = with(LocalDensity.current) { DrawerWidth.toPx() }
-    val offsetIsZero by remember { derivedStateOf { drawerState.requireOffset() == 0f } }
+    val offsetIsZero by remember { derivedStateOf { state.requireOffset() == 0f } }
+
+    val configuration = LocalConfiguration.current
+    val isLandscape = remember(configuration) {
+       configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    }
 
     BoxWithConstraints(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
             .fillMaxWidth()
-            .anchoredDraggable(state = drawerState, orientation = Orientation.Horizontal)
+            .anchoredDraggable(state = state, orientation = Orientation.Horizontal)
     ) {
-        val panelOffsetX = with(LocalDensity.current) { (maxWidth - PanelWidthHide).toPx() }
-        drawerState.updateAnchors(DraggableAnchors {
+        val panelOffsetX = with(LocalDensity.current) {
+            if (isLandscape) DrawerWidth.toPx()
+            else (maxWidth - PanelWidthHide).toPx()
+        }
+        state.updateAnchors(DraggableAnchors {
             DrawerValue.Show at panelOffsetX
             DrawerValue.Hide at 0f
         })
@@ -96,47 +108,46 @@ fun NeiDrawer(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .width(DrawerWidth),
-                verticalArrangement = Arrangement.Center
-            ) {
-                contentDrawer()
-            }
+                verticalArrangement = Arrangement.Center,
+                content = contentDrawer
+            )
+
             Text(
                 text = "Made by Nei \uD83C\uDDE8\uD83C\uDDF4",
                 modifier = Modifier
-                    .padding(12.dp)
                     .navigationBarsPadding()
-                    .align(Alignment.BottomCenter),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                    .then(
+                        if (isLandscape) Modifier
+                            .width(DrawerWidth)
+                            .align(Alignment.BottomStart)
+                        else Modifier.align(Alignment.BottomCenter)
+                    )
+                    .padding(12.dp),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    drawAnimation(
-                        offset = drawerState.requireOffset(),
-                        scaleEnd = 0.7f,
-                        percentageTranslationShadow = 1f,
-                        drawerWidth = drawerWidth,
-                        panelOffsetX = panelOffsetX,
-                        color = shadowColor
-                    )
-                }
-                .background(MaterialTheme.colorScheme.background.copy(0.5f))
+            ShadowPanel(
+                offset = state.requireOffset(),
+                isLandscape = isLandscape,
+                panelOffsetX = panelOffsetX,
+                drawerWidth = drawerWidth,
+                shadowColor = shadowColor,
+                percentageTranslationShadow = 1f,
+                scaleEnd = 0.7f,
+                alphaBackground = 0.25f
             )
 
-            Spacer(modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    drawAnimation(
-                        offset = drawerState.requireOffset(),
-                        scaleEnd = 0.75f,
-                        percentageTranslationShadow = 0.5f,
-                        drawerWidth = drawerWidth,
-                        panelOffsetX = panelOffsetX,
-                        color = shadowColor
-                    )
-                }
-                .background(MaterialTheme.colorScheme.background.copy(0.75f))
+            ShadowPanel(
+                offset = state.requireOffset(),
+                isLandscape = isLandscape,
+                panelOffsetX = panelOffsetX,
+                drawerWidth = drawerWidth,
+                shadowColor = shadowColor,
+                translationXExtra = 16.dp,
+                percentageTranslationShadow = 0.5f,
+                scaleEnd = 0.75f,
+                alphaBackground = 0.5f
             )
         }
 
@@ -144,15 +155,18 @@ fun NeiDrawer(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    val offset = drawerState.requireOffset()
-                    val corners = if (offset == 0f) 0.dp else DefaultDrawerShape
+                    val corners = if (offsetIsZero) 0.dp else DefaultDrawerShape
                     drawAnimation(
-                        offset = drawerState.requireOffset(),
-                        scaleEnd = 0.8f,
+                        offset = state.requireOffset(),
+                        isLandscape = isLandscape,
+                        translationXExtra = 32.dp.toPx(),
+                        panelOffsetX = panelOffsetX,
                         drawerWidth = drawerWidth,
-                        color = shadowColor,
+                        scaleEnd = 0.8f
+                    )
+                    shadowEffect(
                         corners = corners,
-                        panelOffsetX = panelOffsetX
+                        shadowColor = shadowColor
                     )
                 }
         ) {
@@ -162,24 +176,54 @@ fun NeiDrawer(
                     modifier = Modifier
                         // .background(Color.Green.copy(0.5f))
                         .fillMaxSize()
-                        .neiDraggable(state = drawerState, scope = scope)
+                        .anchoredDraggable(
+                            state = state,
+                            orientation = Orientation.Horizontal
+                        ).pointerInput(Unit) {
+                            detectTapGestures {
+                                scope.launch {
+                                    state.animateTo(DrawerValue.Hide)
+                                }
+                            }
+                        }
                 )
             }
         }
     }
 }
 
-fun Modifier.neiDraggable(state: DrawerState, scope: CoroutineScope): Modifier {
-    return anchoredDraggable(
-        state = state,
-        orientation = Orientation.Horizontal
-    ).pointerInput(Unit) {
-        detectTapGestures {
-            scope.launch {
-                state.animateTo(DrawerValue.Hide)
-            }
+@Composable
+fun ShadowPanel(
+    offset: Float,
+    isLandscape: Boolean,
+    translationXExtra: Dp = 0.dp,
+    percentageTranslationShadow: Float = 0f,
+    scaleEnd: Float,
+    panelOffsetX: Float,
+    alphaBackground: Float,
+    drawerWidth: Float,
+    shadowColor: Color
+) {
+    Spacer(modifier = Modifier
+        .fillMaxSize()
+        .graphicsLayer {
+            drawAnimation(
+                offset = offset,
+                isLandscape = isLandscape,
+                translationXExtra = translationXExtra.toPx(),
+                panelOffsetX = panelOffsetX,
+                drawerWidth = drawerWidth,
+                percentageTranslationShadow = percentageTranslationShadow,
+                scaleEnd = scaleEnd
+            )
         }
-    }
+        .transparentBackground(
+            color = MaterialTheme.colorScheme.background.copy(alphaBackground),
+            elevation = DefaultDrawerShape,
+            shape = RoundedCornerShape(DefaultDrawerShape),
+            spotColor = shadowColor
+        )
+    )
 }
 
 @ThemePreviews
@@ -189,7 +233,7 @@ fun NeiDrawerPreview() {
     CronosTheme {
         CronosBackground {
             NeiDrawer(
-                drawerState = rememberDrawerState,
+                state = rememberDrawerState,
                 contentDrawer = { CronosDrawerContent(rememberDrawerState) }) {
                 Scaffold { paddingValuers ->
                     Text(text = "Content", modifier = Modifier.padding(paddingValuers))
@@ -206,7 +250,7 @@ fun NeiDrawerHidePreview() {
     CronosTheme {
         CronosBackground {
             NeiDrawer(
-                drawerState = rememberDrawerState,
+                state = rememberDrawerState,
                 contentDrawer = { CronosDrawerContent(rememberDrawerState) }
             ) {
                 Text(text = "Content")

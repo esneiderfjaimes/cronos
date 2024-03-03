@@ -4,8 +4,6 @@ package com.nei.cronos.ui.contents
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,13 +20,13 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import com.nei.cronos.core.designsystem.component.drawer.DrawerState
 import com.nei.cronos.core.designsystem.component.drawer.DrawerValue
 import com.nei.cronos.core.designsystem.component.drawer.NeiDrawer
 import com.nei.cronos.core.designsystem.component.drawer.rememberDrawerState
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CronosScaffold(
     drawerState: DrawerState = rememberDrawerState(),
@@ -40,15 +38,11 @@ fun CronosScaffold(
 ) {
     val scope = rememberCoroutineScope()
     NeiDrawer(
-        drawerState = drawerState,
+        state = drawerState,
         scope = scope,
         contentDrawer = drawerContent
     ) {
         Scaffold(
-            modifier = Modifier.anchoredDraggable(
-                state = drawerState,
-                orientation = Orientation.Horizontal
-            ),
             topBar = {
                 CronosTopAppBar(
                     drawerState = drawerState,
