@@ -1,5 +1,8 @@
 package com.nei.cronos.core.database.models
 
+import androidx.compose.runtime.Stable
+
+@Stable
 data class ChronometerFormat(
     val showSecond: Boolean = false,
     val showMinute: Boolean = false,

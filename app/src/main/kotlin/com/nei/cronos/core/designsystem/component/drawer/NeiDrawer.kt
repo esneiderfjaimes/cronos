@@ -37,12 +37,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.theme.CronosTheme
@@ -85,7 +85,7 @@ fun NeiDrawer(
 
     val configuration = LocalConfiguration.current
     val isLandscape = remember(configuration) {
-       configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
     BoxWithConstraints(
@@ -112,43 +112,55 @@ fun NeiDrawer(
                 content = contentDrawer
             )
 
-            Text(
-                text = "Made by Nei \uD83C\uDDE8\uD83C\uDDF4",
+            Box(
                 modifier = Modifier
+                    .fillMaxSize()
                     .navigationBarsPadding()
-                    .then(
-                        if (isLandscape) Modifier
-                            .width(DrawerWidth)
-                            .align(Alignment.BottomStart)
-                        else Modifier.align(Alignment.BottomCenter)
-                    )
-                    .padding(12.dp),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                textAlign = TextAlign.Center
-            )
+            ) {
+                Text(
+                    text = "Made by Nei \uD83C\uDDE8\uD83C\uDDF4",
+                    modifier = Modifier
+                        //.navigationBarsPadding()
+                        .then(
+                            if (isLandscape) Modifier
+                                .width(DrawerWidth)
+                                .align(Alignment.BottomStart)
+                            else Modifier.align(Alignment.BottomCenter)
+                        )
+                        .padding(12.dp),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    textAlign = TextAlign.Center
+                )
+            }
 
             ShadowPanel(
-                offset = state.requireOffset(),
-                isLandscape = isLandscape,
-                panelOffsetX = panelOffsetX,
-                drawerWidth = drawerWidth,
                 shadowColor = shadowColor,
-                percentageTranslationShadow = 1f,
-                scaleEnd = 0.7f,
                 alphaBackground = 0.25f
-            )
+            ) {
+                drawAnimation(
+                    offset = state.requireOffset(),
+                    isLandscape = isLandscape,
+                    panelOffsetX = panelOffsetX,
+                    drawerWidth = drawerWidth,
+                    percentageTranslationShadow = 1f,
+                    scaleEnd = 0.7f,
+                )
+            }
 
             ShadowPanel(
-                offset = state.requireOffset(),
-                isLandscape = isLandscape,
-                panelOffsetX = panelOffsetX,
-                drawerWidth = drawerWidth,
                 shadowColor = shadowColor,
-                translationXExtra = 16.dp,
-                percentageTranslationShadow = 0.5f,
-                scaleEnd = 0.75f,
                 alphaBackground = 0.5f
-            )
+            ) {
+                drawAnimation(
+                    offset = state.requireOffset(),
+                    isLandscape = isLandscape,
+                    translationXExtra = 16.dp.toPx(),
+                    panelOffsetX = panelOffsetX,
+                    drawerWidth = drawerWidth,
+                    percentageTranslationShadow = 0.5f,
+                    scaleEnd = 0.75f
+                )
+            }
         }
 
         Box(
@@ -179,7 +191,8 @@ fun NeiDrawer(
                         .anchoredDraggable(
                             state = state,
                             orientation = Orientation.Horizontal
-                        ).pointerInput(Unit) {
+                        )
+                        .pointerInput(Unit) {
                             detectTapGestures {
                                 scope.launch {
                                     state.animateTo(DrawerValue.Hide)
@@ -194,35 +207,20 @@ fun NeiDrawer(
 
 @Composable
 fun ShadowPanel(
-    offset: Float,
-    isLandscape: Boolean,
-    translationXExtra: Dp = 0.dp,
-    percentageTranslationShadow: Float = 0f,
-    scaleEnd: Float,
-    panelOffsetX: Float,
     alphaBackground: Float,
-    drawerWidth: Float,
-    shadowColor: Color
+    shadowColor: Color,
+    block: GraphicsLayerScope.() -> Unit
 ) {
-    Spacer(modifier = Modifier
-        .fillMaxSize()
-        .graphicsLayer {
-            drawAnimation(
-                offset = offset,
-                isLandscape = isLandscape,
-                translationXExtra = translationXExtra.toPx(),
-                panelOffsetX = panelOffsetX,
-                drawerWidth = drawerWidth,
-                percentageTranslationShadow = percentageTranslationShadow,
-                scaleEnd = scaleEnd
+    Spacer(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer(block)
+            .transparentBackground(
+                color = MaterialTheme.colorScheme.background.copy(alphaBackground),
+                elevation = DefaultDrawerShape,
+                shape = RoundedCornerShape(DefaultDrawerShape),
+                spotColor = shadowColor
             )
-        }
-        .transparentBackground(
-            color = MaterialTheme.colorScheme.background.copy(alphaBackground),
-            elevation = DefaultDrawerShape,
-            shape = RoundedCornerShape(DefaultDrawerShape),
-            spotColor = shadowColor
-        )
     )
 }
 

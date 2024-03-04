@@ -29,8 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nei.cronos.core.database.models.ChronometerFormat
 import com.nei.cronos.core.designsystem.component.ChronometerChip
-import com.nei.cronos.core.designsystem.component.ChronometerChipRunning
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiIconButton
 import com.nei.cronos.core.designsystem.component.NeiLoading
@@ -52,19 +52,20 @@ fun ChronometerRoute(
         time = time,
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSaveClick,
-        onUpdateChronometer = viewModel::onUpdateChronometer,
-        onNewLapClick = viewModel::onNewLapClick
+        onNewLapClick = viewModel::onNewLapClick,
+        updateFormat = viewModel::updateFormat
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ChronometerScreen(
     state: ChronometerUiState,
     time: String = "",
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
-    onUpdateChronometer: (ChronometerUi) -> Unit = {},
     onNewLapClick: (ChronometerUi) -> Unit = {},
+    updateFormat: (ChronometerFormat) -> Unit = {},
 ) {
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
@@ -104,7 +105,7 @@ internal fun ChronometerScreen(
                     )
                     ChronometerBody(
                         chronometer = state.chronometer,
-                        onUpdateChronometer = onUpdateChronometer
+                        updateFormat = updateFormat
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     NeiIconButton(iconVector = Icons.Rounded.Flag) {
@@ -119,15 +120,15 @@ internal fun ChronometerScreen(
 @Composable
 fun ChronometerBody(
     chronometer: ChronometerUi,
-    onUpdateChronometer: (ChronometerUi) -> Unit,
+    updateFormat: (ChronometerFormat) -> Unit = {},
 ) {
     Text(text = chronometer.title)
     Spacer(modifier = Modifier.height(32.dp))
     Text(text = "Format", style = MaterialTheme.typography.titleMedium)
     EditFormat(
-        format = chronometer.format,
+        formatProvider = { chronometer.format },
         onUpdate = {
-            onUpdateChronometer.invoke(chronometer.copy(format = it))
+            updateFormat.invoke(it)
         },
         modifier = Modifier.padding(horizontal = 16.dp),
     )
@@ -145,7 +146,7 @@ private fun ChronometerPreview() {
                     Mocks.chronometerPreview
                 ),
                 onBackClick = {},
-                onSaveClick = {}
+                onSaveClick = {},
             )
         }
     }
@@ -159,7 +160,7 @@ private fun ChronometerLoadingPreview() {
             ChronometerScreen(
                 state = ChronometerUiState.Loading,
                 onBackClick = {},
-                onSaveClick = {}
+                onSaveClick = {},
             )
         }
     }
@@ -173,7 +174,7 @@ private fun ChronometerErrorPreview() {
             ChronometerScreen(
                 state = ChronometerUiState.Error,
                 onBackClick = {},
-                onSaveClick = {}
+                onSaveClick = {},
             )
         }
     }

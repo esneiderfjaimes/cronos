@@ -8,15 +8,18 @@ import androidx.lifecycle.ViewModel
 import com.nei.cronos.core.data.LocalRepository
 import com.nei.cronos.core.database.mappers.toDomain
 import com.nei.cronos.core.database.mappers.toUi
+import com.nei.cronos.core.database.models.ChronometerFormat
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
 import com.nei.cronos.utils.differenceParse
 import com.nei.cronos.utils.launchIO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.util.Timer
 import java.util.concurrent.atomic.AtomicBoolean
@@ -61,19 +64,6 @@ class ChronometerViewModel @Inject constructor(
                 } ?: ChronometerUiState.Error
             }
         }
-        /*        val timer = Timer()
-                timer.scheduleAtFixedRate(object : TimerTask() {
-                    override fun run() {
-                        val uiState = _state.value
-                        if (uiState is ChronometerUiState.Success) {
-                            _currentTime.value = uiState.chronometer.fromDate.differenceParse(
-                                uiState.chronometer.format,
-                                currentLocale
-                            )
-                        }
-                    }
-                }, 0, 1000)*/
-
         startTimer()
     }
 
@@ -81,20 +71,14 @@ class ChronometerViewModel @Inject constructor(
     private fun startTimer() {
         val atomicBoolean = AtomicBoolean(false)
         timer = timer(period = 1000) {
-            if (atomicBoolean.compareAndSet(false, true)) {
-                Log.d(TAG, "Tarea iniciada en: ${Instant.now()}")
-                val uiState = _state.value
-                if (uiState is ChronometerUiState.Success) {
-                    _currentTime.value = uiState.chronometer.fromDate.differenceParse(
-                        uiState.chronometer.format,
-                        currentLocale
-                    )
+            launchIO {
+                if (atomicBoolean.compareAndSet(false, true)) {
+                    Log.d(TAG, "Task started: ${Instant.now()}")
+                    forceUpdateLabelTimer()
+                    atomicBoolean.set(false) // Set completed task
+                } else {
+                    Log.e(TAG, "Previews task already running, ignoring.")
                 }
-
-                atomicBoolean.set(false) // Set completed task
-                Log.d(TAG, "Tiempo transcurrido: ${Instant.now()} ms")
-            } else {
-                Log.e(TAG, "Tarea previa aún en progreso, cancelando esta instancia.")
             }
         }
     }
@@ -104,21 +88,34 @@ class ChronometerViewModel @Inject constructor(
         timer?.cancel()
     }
 
-    fun onUpdateChronometer(chronometer: ChronometerUi) {
+    private suspend fun forceUpdateLabelTimer() {
+        withContext(Dispatchers.IO) {
+            val uiState = _state.value
+            if (uiState is ChronometerUiState.Success) {
+                _currentTime.value = uiState.chronometer.fromDate.differenceParse(
+                    uiState.chronometer.format,
+                    currentLocale
+                )
+            }
+        }
+    }
+
+    fun updateFormat(format: ChronometerFormat) {
         launchIO {
             val uiState = _state.value
             if (uiState is ChronometerUiState.Success) {
-                if (chronometer.format.isAllFlagsDisabled) {
+                if (format.isAllFlagsDisabled) {
                     _state.value = uiState.copy(
-                        chronometer = chronometer.copy(
-                            format = chronometer.format.copy(
-                                showSecond = true
-                            )
+                        chronometer = uiState.chronometer.copy(
+                            format = format.copy(showSecond = true)
                         )
                     )
                 } else {
-                    _state.value = uiState.copy(chronometer = chronometer)
+                    _state.value = uiState.copy(
+                        chronometer = uiState.chronometer.copy(format = format)
+                    )
                 }
+                forceUpdateLabelTimer()
             }
         }
     }
