@@ -18,11 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
     name = "Light theme - phone - landscape",
     device = "spec:width=411dp,height=891dp,orientation=landscape", group = "phone"
 )
-/*
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
     name = "Light theme - tablet",
     device = Devices.TABLET
 )
-*/
 annotation class ThemePreviews

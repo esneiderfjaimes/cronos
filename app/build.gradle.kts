@@ -1,11 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     kotlin("kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -22,6 +21,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
         }
     }
 
@@ -51,7 +55,8 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
     packaging {
         resources {
@@ -66,31 +71,22 @@ dependencies {
 
     // Compose
     implementation(platform(libs.compose.bom))
-    implementation(libs.splashscreen)
-    implementation(libs.activity.compose)
-    implementation(libs.material3)
-    implementation(libs.material.icons.extended)
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
-    implementation(libs.ui.tooling.preview)
+    implementation(libs.bundles.compose.ui)
 
     // Navigation
     implementation(libs.navigation.compose)
     implementation(libs.hilt.navigation.compose)
 
     // Lifecycle
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.lifecycle.viewmodel.compose)
-    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.bundles.lifecycle)
 
     // Dagger
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
     // Room
-    implementation(libs.room.runtime)
-    annotationProcessor(libs.room.compiler)
-    implementation(libs.room.ktx)
+    implementation(libs.bundles.room)
+    //noinspection KaptUsageInsteadOfKsp
     kapt(libs.room.compiler)
 
     // Preferences
