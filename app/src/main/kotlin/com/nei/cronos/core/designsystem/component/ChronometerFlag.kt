@@ -23,6 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
@@ -38,7 +42,11 @@ fun ChronometerFlag(
     Surface(
         modifier = modifier
             .aspectRatio(1f, true)
-            .padding(8.dp),
+            .padding(8.dp)
+            .semantics(mergeDescendants = true) {
+                this.contentDescription = "Switch $text background"
+                this.role = Role.Checkbox
+            },
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 1.dp,
         border = if (checked) BorderStroke(2.dp, color) else null,

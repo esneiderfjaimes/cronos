@@ -23,7 +23,7 @@ room-runtime = "2.6.1"
 datastore-preferences = "1.0.0"
 
 # Plugins
-agp = "8.2.2"
+agp = "8.3.0"
 org-jetbrains-kotlin-android = "1.9.22"
 
 [libraries]

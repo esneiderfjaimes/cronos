@@ -1,32 +1,23 @@
 package com.nei.cronos.core.designsystem.component
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,166 +25,100 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 
 @Composable
-fun AddChronometerAction(
-    formattedValue: String?,
+fun Action(
+    isChecked: Boolean,
+    text: @Composable () -> Unit,
+    imageVector: ImageVector,
     onClick: () -> Unit,
-    onCloseClick: () -> Unit,
-    content: @Composable () -> Unit,
+    onCloseClick: () -> Unit = {},
+    contentDescription: String = ""
 ) {
-    IconButton(
-        onClick = onClick,
-        active = formattedValue != null,
-        trailingIcon = {
-            formattedValue?.let {
-                Text(text = formattedValue, maxLines = 1)
-                MyIconButton(onClick = onCloseClick) {
-                    Icon(Icons.Outlined.Close, contentDescription = null)
-                }
-            }
-        }
-    ) {
-        content.invoke()
-    }
-}
+    val animatedColor by animateColorAsState(
+        if (isChecked) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+        label = "color_action"
+    )
 
-@Composable
-fun IconButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    active: Boolean = false,
-    colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    trailingIcon: @Composable RowScope.() -> Unit,
-    content: @Composable () -> Unit,
-) {
     Row(
-        modifier = modifier
-            .minimumInteractiveComponentSize()
-            .clip(CircleShape)
-            .then(
-                if (active) {
-                    Modifier
-                        .height(40.dp)
-                        .clickable(onClick = onClick)
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
-                } else {
-                    Modifier
-                        .size(40.dp)
-                        .clickable(
-                            onClick = onClick,
-                            enabled = enabled,
-                            role = Role.Button,
-                            interactionSource = interactionSource,
-                            indication = rememberRipple(
-                                bounded = false,
-                                radius = 40.dp / 2
-                            )
-                        )
-                }
-            )
-            .background(color = colors.containerColor(enabled))
-            .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        modifier = Modifier
+            .clip(CircleShape)
+            .drawBehind { drawRect(animatedColor) }
+            .toggleable(
+                value = isChecked,
+                role = Role.Checkbox,
+                onValueChange = { onClick.invoke() }
+            )
+            .semantics(mergeDescendants = true) {
+                role = Role.Checkbox
+                stateDescription = if (isChecked) "Checked" else "Unchecked"
+                this.contentDescription = contentDescription
+            },
     ) {
-
-        val contentColor = colors.contentColor(enabled)
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
-            if (!active) {
-                Box(
-                    modifier = Modifier.size(40.dp),
-                    contentAlignment = Alignment.Center
-                ) { content.invoke() }
-            } else {
-                Spacer(modifier = Modifier.width(16.dp))
+        AnimatedVisibility(visible = !isChecked) {
+            Box(
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .size(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector, contentDescription = null)
             }
-            trailingIcon.invoke(this)
+        }
+        AnimatedVisibility(visible = isChecked) {
+            Row {
+                Spacer(modifier = Modifier.width(12.dp))
+                text.invoke()
+            }
+        }
+        AnimatedVisibility(visible = isChecked) {
+            IconButton(onClick = onCloseClick) {
+                Icon(Icons.Rounded.Close, contentDescription = null)
+            }
         }
     }
 }
-
-
-@Composable
-fun MyIconButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    content: @Composable () -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(color = colors.containerColor(enabled))
-            .clickable(
-                onClick = onClick,
-                enabled = enabled,
-                role = Role.Button,
-                interactionSource = interactionSource,
-                indication = rememberRipple(
-                    bounded = false,
-                    radius = 40.dp / 2
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        val contentColor = colors.contentColor(enabled)
-        CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
-    }
-}
-
-fun IconButtonColors.containerColor(enabled: Boolean): Color =
-    if (enabled) containerColor else disabledContainerColor
-
-fun IconButtonColors.contentColor(enabled: Boolean): Color =
-    if (enabled) contentColor else disabledContentColor
 
 @ThemePreviews
 @Composable
 fun AddChronometerActionPreview() {
-    var formattedValue by remember { mutableStateOf<String?>("00:00") }
     CronosTheme {
         CronosBackground {
-            AddChronometerAction(
-                formattedValue = formattedValue,
-                onClick = { formattedValue = "00:00" },
-                onCloseClick = { formattedValue = null }
-            ) {
-                Icon(Icons.Outlined.Schedule, contentDescription = null)
-            }
+            Action(
+                isChecked = false,
+                text = { Text(text = "00:00") },
+                imageVector = Icons.Rounded.Schedule,
+                onClick = {}
+            )
         }
     }
 }
 
-
-
 @ThemePreviews
 @Composable
-fun AddChronometerActionNullPreview() {
-    var formattedValue by remember { mutableStateOf<String?>(null) }
+fun AddChronometerActionPreview3() {
+    var isChecked by remember { mutableStateOf(true) }
     CronosTheme {
         CronosBackground {
-            AddChronometerAction(
-                formattedValue = formattedValue,
-                onClick = { formattedValue = "00:00" },
-                onCloseClick = { formattedValue = null }
-            ) {
-                Icon(Icons.Outlined.Schedule, contentDescription = null)
-            }
+            Action(
+                isChecked = isChecked,
+                text = { Text(text = "00:00") },
+                imageVector = Icons.Rounded.Schedule,
+                onClick = { isChecked = !isChecked },
+                onCloseClick = { isChecked = false }
+            )
         }
     }
 }

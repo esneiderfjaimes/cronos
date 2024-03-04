@@ -15,15 +15,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 
 @Composable
-fun NeiIconButton(iconVector: ImageVector, onClick: () -> Unit) {
+fun NeiIconButton(
+    iconVector: ImageVector,
+    contentDescription: String? = null,
+    onClick: () -> Unit
+) {
     val color = if (isSystemInDarkTheme()) Color.White else Color.Black
     Surface(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .semantics(mergeDescendants = true) {
+                this.contentDescription = contentDescription ?: ""
+                this.role = Role.Button
+            },
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 1.dp,
         border = BorderStroke(2.dp, color),

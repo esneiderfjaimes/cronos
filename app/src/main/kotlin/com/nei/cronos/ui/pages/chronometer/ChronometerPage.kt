@@ -73,7 +73,10 @@ internal fun ChronometerScreen(
             title = { Text(text = "Chronometer") },
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    Icon(
+                        Icons.AutoMirrored.Rounded.ArrowBack,
+                        contentDescription = "Back Navigation"
+                    )
                 }
             }, actions = {
                 if (state is ChronometerUiState.Success) {
@@ -109,7 +112,10 @@ internal fun ChronometerScreen(
                         updateFormat = updateFormat
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    NeiIconButton(iconVector = Icons.Rounded.Flag) {
+                    NeiIconButton(
+                        iconVector = Icons.Rounded.Flag,
+                        contentDescription = "New Lap",
+                    ) {
                         onNewLapClick.invoke(state.chronometer)
                     }
                 }
@@ -131,7 +137,9 @@ fun ChronometerBody(
         onUpdate = {
             updateFormat.invoke(it)
         },
-        modifier = Modifier.padding(horizontal = 16.dp).sizeIn(maxWidth = 600.dp),
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .sizeIn(maxWidth = 600.dp),
     )
 }
 
