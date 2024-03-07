@@ -2,12 +2,13 @@ package com.nei.cronos.core.data
 
 import com.nei.cronos.core.common.result.executeToResult
 import com.nei.cronos.core.database.daos.ChronometerDao
-import com.nei.cronos.core.database.daos.LapDao
+import com.nei.cronos.core.database.daos.EventDao
 import com.nei.cronos.core.database.daos.SectionDao
 import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.database.models.ChronometerWithLaps
-import com.nei.cronos.core.database.models.LapEntity
+import com.nei.cronos.core.database.models.EventEntity
 import com.nei.cronos.core.database.models.SectionEntity
+import com.nei.cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -15,7 +16,7 @@ import javax.inject.Inject
 class LocalRepositoryImpl @Inject constructor(
     private val sectionDao: SectionDao,
     private val chronometerDao: ChronometerDao,
-    private val lapsDao: LapDao,
+    private val lapsDao: EventDao,
 ) : LocalRepository {
     // region section
 
@@ -52,7 +53,7 @@ class LocalRepositoryImpl @Inject constructor(
 
     override suspend fun registerLapIn(chronometer: ChronometerEntity) {
         executeToResult {  // create new lap
-            lapsDao.insert(LapEntity(chronometerId = chronometer.id))
+            lapsDao.insert(EventEntity(chronometerId = chronometer.id, type = EventType.LAP))
             // reset fromDate to now
             chronometerDao.update(chronometer.copy(fromDate = ZonedDateTime.now()))
         }

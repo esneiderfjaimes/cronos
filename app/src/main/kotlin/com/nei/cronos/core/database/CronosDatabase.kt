@@ -1,35 +1,34 @@
 package com.nei.cronos.core.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.nei.cronos.core.database.converters.ChronometerFormatConverter
+import com.nei.cronos.core.database.converters.EventTypeConverter
 import com.nei.cronos.core.database.converters.OrderChronometerIdsConverter
 import com.nei.cronos.core.database.converters.ZonedDateTimeConverter
 import com.nei.cronos.core.database.daos.ChronometerDao
-import com.nei.cronos.core.database.daos.LapDao
+import com.nei.cronos.core.database.daos.EventDao
 import com.nei.cronos.core.database.daos.SectionDao
 import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.models.LapEntity
+import com.nei.cronos.core.database.models.EventEntity
 import com.nei.cronos.core.database.models.SectionEntity
 import com.nei.cronos.utils.Mocks
 
 @Database(
-    version = 1,
-    entities = [
-        SectionEntity::class,
-        ChronometerEntity::class,
-        LapEntity::class
-    ],
-    exportSchema = true
+    version = 2,
+    entities = [SectionEntity::class, ChronometerEntity::class, EventEntity::class],
+    exportSchema = true,
 )
 @TypeConverters(
     OrderChronometerIdsConverter::class,
     ZonedDateTimeConverter::class,
-    ChronometerFormatConverter::class
+    ChronometerFormatConverter::class,
+    EventTypeConverter::class
 )
 abstract class CronosDatabase : RoomDatabase() {
 
@@ -37,7 +36,7 @@ abstract class CronosDatabase : RoomDatabase() {
 
     abstract fun chronometerDao(): ChronometerDao
 
-    abstract fun lapDao(): LapDao
+    abstract fun lapDao(): EventDao
 
     companion object {
 
@@ -46,22 +45,28 @@ abstract class CronosDatabase : RoomDatabase() {
         @Synchronized
         fun getDatabase(context: Context): CronosDatabase {
             return Room.databaseBuilder(
-                context,
-                CronosDatabase::class.java,
-                DATABASE_NAME
+                context, CronosDatabase::class.java, DATABASE_NAME
             ).run {
-                fallbackToDestructiveMigration()
                 addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
+                        Log.d(TAG, "callback onCreate called")
 
                         // insert default values
                         SectionEntity.onCreate(db)
                         ChronometerEntity.onDbCreate(db, Mocks.getFirstChronometer(context))
                     }
+
+                    override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                        super.onDestructiveMigration(db)
+                        Log.d(TAG, "callback onDestructiveMigration called")
+                    }
                 })
+                addMigrations(DatabaseMigrations.Schema1to2)
                 build()
             }
         }
+
+        private const val TAG = "CronosDatabase"
     }
 }

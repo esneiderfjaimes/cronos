@@ -50,7 +50,12 @@ fun ChronometerRoute(
     val time: String by viewModel.currentTime.collectAsStateWithLifecycle()
     ChronometerScreen(
         state = state,
-        time = time,
+        timeSection = {
+            ChronometerChip(
+                text = time,
+                modifier = Modifier.padding(16.dp)
+            )
+        },
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSaveClick,
         onNewLapClick = viewModel::onNewLapClick,
@@ -62,7 +67,7 @@ fun ChronometerRoute(
 @Composable
 internal fun ChronometerScreen(
     state: ChronometerUiState,
-    time: String = "",
+    timeSection: @Composable () -> Unit = { },
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     onNewLapClick: (ChronometerUi) -> Unit = {},
@@ -103,10 +108,7 @@ internal fun ChronometerScreen(
                 ChronometerUiState.Error -> Text(text = "Error")
                 ChronometerUiState.Loading -> NeiLoading()
                 is ChronometerUiState.Success -> {
-                    ChronometerChip(
-                        text = time,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    timeSection.invoke()
                     ChronometerBody(
                         chronometer = state.chronometer,
                         updateFormat = updateFormat

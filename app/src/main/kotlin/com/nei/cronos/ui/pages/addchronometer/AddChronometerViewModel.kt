@@ -39,7 +39,7 @@ class AddChronometerViewModel @Inject constructor(
             val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
             localRepository.insertChronometer(
                 ChronometerEntity(
-                    title = title, allDateTime = zonedDateTime
+                    title = title.trim(), allDateTime = zonedDateTime
                 )
             )
         }

@@ -55,6 +55,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
@@ -169,7 +172,8 @@ fun AddChronometerPage(
         // time
         timeState = timeState,
         // buttons
-        addChronometerClick = {
+        addChronometerClick = click@{
+            if (title.isBlank()) return@click
             scope.launch {
                 viewModel.insertChronometer(
                     title = title,
@@ -181,6 +185,7 @@ fun AddChronometerPage(
                 onOpenBottomSheetChange(false)
             }
         },
+        closeBottomSheet = { onOpenBottomSheetChange(false) },
         enabledButton = enabledButton
     )
 }
@@ -206,6 +211,8 @@ private fun AddChronometerContent(
             yearSelectionSkeleton = "MMddyy",
         )
     },
+    // bottom sheet
+    closeBottomSheet: () -> Unit = {},
 ) {
     val showSpacerVertical by remember {
         derivedStateOf { dateState.selectedDateMillis != null || timeState.time != null }
@@ -221,11 +228,24 @@ private fun AddChronometerContent(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .padding(top = 16.dp)
-            .focusRequester(focusRequester),
-        keyboardActions = KeyboardActions {
-            addChronometerClick.invoke()
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            .focusRequester(focusRequester)
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Enter) {
+                    addChronometerClick()
+                    return@onKeyEvent true
+                }
+                if (keyEvent.key == Key.Escape) {
+                    closeBottomSheet()
+                    return@onKeyEvent true
+                }
+                return@onKeyEvent false
+            },
+        keyboardActions = KeyboardActions(onDone = {
+            addChronometerClick()
+        }),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = if (enabledButton) ImeAction.Done else ImeAction.None
+        ),
     )
 
     AnimatedVisibility(visible = showSpacerVertical) {

@@ -36,7 +36,7 @@ data class ChronometerEntity(
     val createdAt: ZonedDateTime,
     @ColumnInfo(name = "start_date")
     val startDate: ZonedDateTime,
-    // mutable, represents last lap time
+    // mutable, represents last event time
     @ColumnInfo(name = "from_date")
     val fromDate: ZonedDateTime,
     @ColumnInfo(name = "format")

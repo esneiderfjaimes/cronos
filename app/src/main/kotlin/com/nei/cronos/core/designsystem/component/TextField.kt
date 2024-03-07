@@ -41,6 +41,7 @@ fun TextField(
         modifier = modifier
             .sizeIn(maxWidth = 488.dp)
             .fillMaxWidth(),
+        singleLine = true,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         textStyle = textStyle.copy(color = colors.focusedTextColor),

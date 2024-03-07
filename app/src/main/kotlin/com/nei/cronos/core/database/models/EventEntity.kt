@@ -5,10 +5,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nei.cronos.core.model.EventType
 import java.time.ZonedDateTime
 
 @Entity(
-    tableName = "laps",
+    tableName = "events",
     foreignKeys = [
         ForeignKey(
             entity = ChronometerEntity::class,
@@ -21,11 +22,14 @@ import java.time.ZonedDateTime
         Index(value = ["chronometer_id"]),
     ]
 )
-data class LapEntity(
+data class EventEntity(
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "event_id")
     var id: Long = 0,
     @ColumnInfo(name = "chronometer_id")
     val chronometerId: Long,
-    @ColumnInfo(name = "lap_time")
-    val lapTime: ZonedDateTime = ZonedDateTime.now()
+    @ColumnInfo(name = "event_time")
+    val time: ZonedDateTime = ZonedDateTime.now(),
+    @ColumnInfo(name = "event_type")
+    val type: EventType
 )

@@ -3,7 +3,7 @@ package com.nei.cronos.core.database.di
 import android.content.Context
 import com.nei.cronos.core.database.CronosDatabase
 import com.nei.cronos.core.database.daos.ChronometerDao
-import com.nei.cronos.core.database.daos.LapDao
+import com.nei.cronos.core.database.daos.EventDao
 import com.nei.cronos.core.database.daos.SectionDao
 import dagger.Module
 import dagger.Provides
@@ -34,5 +34,5 @@ class DatabaseModule {
     @Provides
     fun lapDaoProvider(
         database: CronosDatabase,
-    ): LapDao = database.lapDao()
+    ): EventDao = database.lapDao()
 }

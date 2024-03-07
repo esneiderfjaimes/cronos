@@ -9,5 +9,5 @@ data class ChronometerWithLaps(
         parentColumn = "id",
         entityColumn = "chronometer_id"
     )
-    val laps: List<LapEntity>
+    val events: List<EventEntity>
 )
