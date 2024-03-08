@@ -4,12 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -35,12 +37,31 @@ import com.nei.cronos.core.designsystem.utils.ThemePreviews
 fun ChronometerFlag(
     text: String,
     checked: Boolean,
+    modifier: Modifier = Modifier,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        ChronometerFlagIml(
+            text = text,
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier
+        )
+    }
+}
+
+
+@Composable
+private fun ChronometerFlagIml(
+    text: String,
+    checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val color = if (isSystemInDarkTheme()) Color.White else Color.Black
     Surface(
         modifier = modifier
+            .sizeIn(maxWidth = 175.dp, minWidth = 75.dp)
             .aspectRatio(1f, true)
             .padding(8.dp)
             .semantics(mergeDescendants = true) {
@@ -58,7 +79,7 @@ fun ChronometerFlag(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = text)
+            Text(text = text, maxLines = 1)
             Checkbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
@@ -84,8 +105,7 @@ fun ChronometerFlagPreview() {
             ChronometerFlag(
                 text = "Seconds",
                 checked = checked,
-                onCheckedChange = { checked = it },
-            )
+            ) { checked = it }
         }
     }
 }

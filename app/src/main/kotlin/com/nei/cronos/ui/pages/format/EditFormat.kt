@@ -9,13 +9,15 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.nei.cronos.core.model.ChronometerFormat
+import androidx.compose.ui.unit.dp
+import cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.component.ChronometerFlag
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.SwitchFormat
@@ -29,7 +31,7 @@ fun EditFormat(
     onUpdate: (ChronometerFormat) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(modifier) {
+    FlowRow(modifier.sizeIn(maxWidth = 600.dp)) {
         ChronometerFlag(
             text = "Years",
             checked = formatProvider().showYear,

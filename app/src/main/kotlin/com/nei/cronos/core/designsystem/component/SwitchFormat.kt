@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +35,7 @@ fun SwitchFormat(text: String, checked: Boolean, onCheckedChange: (Boolean) -> U
             .semantics(mergeDescendants = true) {
                 this.contentDescription = "Switch $text"
                 this.role = Role.Switch
-            },
+            }.minimumInteractiveComponentSize(),
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 1.dp,
         border = if (checked) BorderStroke(2.dp, color) else null,

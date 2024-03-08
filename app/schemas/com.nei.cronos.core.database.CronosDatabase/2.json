@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "6f5d48dbe58bc32bac5dea91bf72d403",
+    "identityHash": "05e5172c22b2fe6694916e8c48c24abc",
     "entities": [
       {
         "tableName": "sections",
@@ -39,7 +39,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_sections_id",
+            "unique": false,
+            "columnNames": [
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sections_id` ON `${TABLE_NAME}` (`id`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -134,11 +144,11 @@
       },
       {
         "tableName": "events",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `chronometer_id` INTEGER NOT NULL, `event_time` TEXT NOT NULL, `event_type` INTEGER NOT NULL, FOREIGN KEY(`chronometer_id`) REFERENCES `chronometers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `chronometer_id` INTEGER NOT NULL, `time` TEXT NOT NULL, `type` INTEGER NOT NULL, FOREIGN KEY(`chronometer_id`) REFERENCES `chronometers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "event_id",
+            "columnName": "id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -150,13 +160,13 @@
           },
           {
             "fieldPath": "time",
-            "columnName": "event_time",
+            "columnName": "time",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "type",
-            "columnName": "event_type",
+            "columnName": "type",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -164,10 +174,19 @@
         "primaryKey": {
           "autoGenerate": true,
           "columnNames": [
-            "event_id"
+            "id"
           ]
         },
         "indices": [
+          {
+            "name": "index_events_id",
+            "unique": false,
+            "columnNames": [
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_events_id` ON `${TABLE_NAME}` (`id`)"
+          },
           {
             "name": "index_events_chronometer_id",
             "unique": false,
@@ -193,15 +212,10 @@
         ]
       }
     ],
-    "views": [
-      {
-        "viewName": "chronometer_with_last_event",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.id AS id, c.title, c.created_at, c.start_date, c.from_date, c.format, c.section_id, c.is_active, c.is_archived, e.event_id AS last_event_id, e.event_time AS last_event_time, e.event_type AS last_event_type FROM chronometers c LEFT JOIN (SELECT chronometer_id, MAX(event_time) AS maxEventTime FROM events GROUP BY chronometer_id) latestEvent ON c.id = latestEvent.chronometer_id LEFT JOIN events e ON latestEvent.chronometer_id = e.chronometer_id AND latestEvent.maxEventTime = e.event_time"
-      }
-    ],
+    "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6f5d48dbe58bc32bac5dea91bf72d403')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '05e5172c22b2fe6694916e8c48c24abc')"
     ]
   }
 }

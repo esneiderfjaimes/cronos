@@ -1,11 +1,10 @@
 package com.nei.cronos.core.data
 
-import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.embeddeds.ChronometerWithEvents
-import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
-import com.nei.cronos.core.database.models.SectionEntity
-import com.nei.cronos.core.database.embeddeds.SectionWithChronometers
-import com.nei.cronos.core.model.EventType
+import cronos.core.database.embeddeds.ChronometerWithEvents
+import cronos.core.database.embeddeds.ChronometerWithLastEvent
+import cronos.core.database.models.ChronometerEntity
+import cronos.core.database.models.SectionEntity
+import cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
@@ -14,9 +13,6 @@ interface LocalRepository {
 
     fun sections(): Flow<List<SectionEntity>>
 
-    fun sectionsWithChronometers(): Flow<List<SectionWithChronometers>>
-
-    fun sectionsWithChronometerById(sectionId: Long): Flow<SectionWithChronometers?>
 
     // endregion
     // region chronometer

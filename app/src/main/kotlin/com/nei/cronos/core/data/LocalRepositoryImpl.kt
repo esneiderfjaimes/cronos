@@ -1,15 +1,15 @@
 package com.nei.cronos.core.data
 
 import com.nei.cronos.core.common.result.executeToResult
-import com.nei.cronos.core.database.daos.ChronometerDao
-import com.nei.cronos.core.database.daos.EventDao
-import com.nei.cronos.core.database.daos.SectionDao
-import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.embeddeds.ChronometerWithEvents
-import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
-import com.nei.cronos.core.database.models.EventEntity
-import com.nei.cronos.core.database.models.SectionEntity
-import com.nei.cronos.core.model.EventType
+import cronos.core.database.dao.ChronometerDao
+import cronos.core.database.dao.EventDao
+import cronos.core.database.dao.SectionDao
+import cronos.core.database.embeddeds.ChronometerWithEvents
+import cronos.core.database.embeddeds.ChronometerWithLastEvent
+import cronos.core.database.models.ChronometerEntity
+import cronos.core.database.models.EventEntity
+import cronos.core.database.models.SectionEntity
+import cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -26,11 +26,6 @@ class LocalRepositoryImpl @Inject constructor(
     }
 
     override fun sections() = sectionDao.sections()
-
-    override fun sectionsWithChronometers() = sectionDao.sectionsWithChronometers()
-
-    override fun sectionsWithChronometerById(sectionId: Long) =
-        sectionDao.sectionsWithChronometerById(sectionId)
 
     // endregion
     // region chronometer
@@ -53,20 +48,29 @@ class LocalRepositoryImpl @Inject constructor(
         return chronometerDao.chronometerWithLastEventById(id)
     }
 
-    override suspend fun updateChronometerIsActive(id: Long, isArchived: Boolean) = executeToResult {
-        chronometerDao.updateIsArchived(id, isArchived)
-    }
+    override suspend fun updateChronometerIsActive(id: Long, isArchived: Boolean) =
+        executeToResult {
+            chronometerDao.updateIsArchived(id, isArchived)
+        }
 
     // endregion
     // region lap
 
-    override suspend fun registerEventIn(chronometer: ChronometerEntity, eventType: EventType) {
+    override suspend fun registerEventIn(
+        chronometer: ChronometerEntity,
+        eventType: EventType
+    ) {
         executeToResult {  // create new lap
-            lapsDao.insert(EventEntity(chronometerId = chronometer.id, type = eventType))
+            lapsDao.insert(
+                EventEntity(
+                    chronometerId = chronometer.id,
+                    type = eventType
+                )
+            )
 
             val isActive = when (eventType) {
-                EventType.PAUSE -> false
-                EventType.RESUME -> true
+                EventType.STOP -> false
+                EventType.RESTART -> true
                 EventType.LAP -> chronometer.isActive
             }
 

@@ -25,6 +25,8 @@ datastore-preferences = "1.0.0"
 # Plugins
 agp = "8.3.0"
 org-jetbrains-kotlin-android = "1.9.22"
+appcompat = "1.6.1"
+material = "1.11.0"
 
 [libraries]
 # Core
@@ -74,6 +76,8 @@ material3 = { group = "androidx.compose.material3", name = "material3", version 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
@@ -81,6 +85,7 @@ org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.re
 
 # module
 hilt = { id = "com.google.dagger.hilt.android" , version = "2.51" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 
 [bundles]
 compose-ui = [

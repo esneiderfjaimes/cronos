@@ -8,14 +8,14 @@ import androidx.lifecycle.ViewModel
 import com.nei.cronos.core.data.LocalRepository
 import com.nei.cronos.core.database.mappers.toDomain
 import com.nei.cronos.core.database.mappers.toUi
-import com.nei.cronos.core.model.ChronometerFormat
-import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
-import com.nei.cronos.core.database.models.EventEntity
-import com.nei.cronos.core.model.EventType
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
 import com.nei.cronos.utils.differenceParse
 import com.nei.cronos.utils.launchIO
+import cronos.core.database.embeddeds.ChronometerWithLastEvent
+import cronos.core.database.models.EventEntity
+import cronos.core.model.ChronometerFormat
+import cronos.core.model.EventType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -112,15 +112,22 @@ class ChronometerViewModel @Inject constructor(
     private fun updateLabel(uiState: ChronometerUiState.Success) {
         val chronometer = uiState.chronometer
         val last = uiState.lastEvent
-        _currentTime.value = if (last != null && uiState.isPaused) {
-            differenceParse(
-                chronometer.format,
-                currentLocale,
-                chronometer.fromDate,
-                last.time
-            )
+        _currentTime.value = if (last != null) {
+            if (uiState.isPaused) {
+                differenceParse(
+                    chronometer.format,
+                    currentLocale,
+                    chronometer.startDate,
+                    last.time
+                )
+            } else {
+                last.time.differenceParse(
+                    chronometer.format,
+                    currentLocale
+                )
+            }
         } else {
-            chronometer.fromDate.differenceParse(
+            chronometer.startDate.differenceParse(
                 chronometer.format,
                 currentLocale
             )
@@ -191,7 +198,7 @@ sealed interface ChronometerUiState {
             (previousFormat != chronometer.format && !chronometer.format.isAllFlagsDisabled)
 
         val isPaused: Boolean =
-            (!chronometer.isActive && lastEvent?.type == EventType.PAUSE)
+            (!chronometer.isActive && lastEvent?.type == EventType.STOP)
     }
 
     data object Error : ChronometerUiState

@@ -1,7 +1,7 @@
 package com.nei.cronos.utils
 
 import android.os.Build
-import com.nei.cronos.core.model.ChronometerFormat
+import cronos.core.model.ChronometerFormat
 import java.time.Duration
 import java.time.ZonedDateTime
 import java.util.Locale
