@@ -5,6 +5,8 @@ package com.nei.cronos.ui.pages.chronometer
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +16,10 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,13 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiIconButton
 import com.nei.cronos.core.designsystem.component.NeiLoading
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.core.model.EventType
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.format.EditFormat
 import com.nei.cronos.utils.Mocks
@@ -59,19 +65,21 @@ fun ChronometerRoute(
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSaveClick,
         onNewLapClick = viewModel::onNewLapClick,
-        updateFormat = viewModel::updateFormat
+        updateFormat = viewModel::updateFormat,
+        onDeleteClick = viewModel::deleteChronometer
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 internal fun ChronometerScreen(
     state: ChronometerUiState,
     timeSection: @Composable () -> Unit = { },
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
-    onNewLapClick: (ChronometerUi) -> Unit = {},
+    onNewLapClick: (ChronometerUi, EventType) -> Unit = { _, _ -> },
     updateFormat: (ChronometerFormat) -> Unit = {},
+    onDeleteClick: () -> Unit = {},
 ) {
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
@@ -114,11 +122,33 @@ internal fun ChronometerScreen(
                         updateFormat = updateFormat
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    NeiIconButton(
-                        iconVector = Icons.Rounded.Flag,
-                        contentDescription = "New Lap",
-                    ) {
-                        onNewLapClick.invoke(state.chronometer)
+                    FlowRow {
+                        if (!state.isPaused) {
+                            NeiIconButton(
+                                iconVector = Icons.Rounded.Pause,
+                                contentDescription = "pause",
+                            ) {
+                                onNewLapClick.invoke(state.chronometer, EventType.PAUSE)
+                            }
+                        } else {
+                            NeiIconButton(
+                                iconVector = Icons.Rounded.PlayArrow,
+                                contentDescription = "resume",
+                            ) {
+                                onNewLapClick.invoke(state.chronometer, EventType.RESUME)
+                            }
+                        }
+                        NeiIconButton(
+                            iconVector = Icons.Rounded.Flag,
+                            contentDescription = "New Lap",
+                        ) {
+                            onNewLapClick.invoke(state.chronometer, EventType.LAP)
+                        }
+                        NeiIconButton(
+                            iconVector = Icons.Rounded.Delete,
+                            contentDescription = "Delete",
+                            onClick = onDeleteClick
+                        )
                     }
                 }
             }
@@ -149,12 +179,28 @@ fun ChronometerBody(
 @Composable
 private fun ChronometerPreview() {
     CronosTheme {
-        MaterialTheme.typography.titleMedium
-
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
                 state = ChronometerUiState.Success(
                     Mocks.chronometerPreview
+                ),
+                onBackClick = {},
+                onSaveClick = {},
+            )
+        }
+    }
+}
+
+@ThemePreviews
+@Composable
+private fun ChronometerPreviewStop() {
+    CronosTheme {
+        CronosBackground(modifier = Modifier.fillMaxWidth()) {
+            ChronometerScreen(
+                state = ChronometerUiState.Success(
+                    Mocks.chronometerPreview.copy(
+                        isActive = false
+                    )
                 ),
                 onBackClick = {},
                 onSaveClick = {},

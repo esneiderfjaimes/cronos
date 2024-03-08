@@ -29,6 +29,11 @@ android {
         }
     }
 
+    sourceSets {
+        val androidTestAssets = sourceSets.getByName("androidTest").assets
+        androidTestAssets.srcDirs(files("$projectDir/schemas"))
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"

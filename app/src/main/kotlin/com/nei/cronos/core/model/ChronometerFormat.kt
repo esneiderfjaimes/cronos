@@ -1,4 +1,4 @@
-package com.nei.cronos.core.database.models
+package com.nei.cronos.core.model
 
 import androidx.compose.runtime.Stable
 

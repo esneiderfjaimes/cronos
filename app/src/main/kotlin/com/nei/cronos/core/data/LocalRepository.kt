@@ -1,9 +1,11 @@
 package com.nei.cronos.core.data
 
 import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.models.ChronometerWithLaps
+import com.nei.cronos.core.database.embeddeds.ChronometerWithEvents
+import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
 import com.nei.cronos.core.database.models.SectionEntity
-import com.nei.cronos.core.database.models.SectionWithChronometers
+import com.nei.cronos.core.database.embeddeds.SectionWithChronometers
+import com.nei.cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
 
 interface LocalRepository {
@@ -25,9 +27,13 @@ interface LocalRepository {
 
     suspend fun updateChronometer(chronometer: ChronometerEntity)
 
-    suspend fun registerLapIn(chronometer: ChronometerEntity)
+    suspend fun registerEventIn(chronometer: ChronometerEntity, eventType: EventType)
 
-    fun chronometerWithLapsById(id: Long): Flow<ChronometerWithLaps?>
+    fun chronometerWithEventsById(id: Long): Flow<ChronometerWithEvents?>
+
+    fun chronometerWithLastEventById(id: Long): Flow<ChronometerWithLastEvent?>
+
+    suspend fun updateChronometerIsActive(id: Long, isArchived: Boolean): Result<Int>
 
     // endregion
 }

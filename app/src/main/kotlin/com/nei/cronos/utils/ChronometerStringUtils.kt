@@ -1,18 +1,26 @@
 package com.nei.cronos.utils
 
 import android.os.Build
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
 import java.time.Duration
-import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.util.Locale
 
 fun ZonedDateTime.differenceParse(
     format: ChronometerFormat,
     locale: Locale,
-) = buildString {
+): String {
     val now = ZonedDateTime.now(this@differenceParse.zone)
-    var duration = Duration.between(this@differenceParse, now)
+    return differenceParse(format, locale, this, now)
+}
+
+fun differenceParse(
+    format: ChronometerFormat,
+    locale: Locale,
+    startInclusive: ZonedDateTime,
+    endExclusive: ZonedDateTime
+) = buildString {
+    var duration = Duration.between(startInclusive, endExclusive)
 
     val years = duration.toYears()
     if (format.showYear && (!format.hideZeros || (years != 0L))) {

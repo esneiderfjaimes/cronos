@@ -5,7 +5,8 @@ import com.nei.cronos.core.database.daos.ChronometerDao
 import com.nei.cronos.core.database.daos.EventDao
 import com.nei.cronos.core.database.daos.SectionDao
 import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.models.ChronometerWithLaps
+import com.nei.cronos.core.database.embeddeds.ChronometerWithEvents
+import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
 import com.nei.cronos.core.database.models.EventEntity
 import com.nei.cronos.core.database.models.SectionEntity
 import com.nei.cronos.core.model.EventType
@@ -44,18 +45,41 @@ class LocalRepositoryImpl @Inject constructor(
         executeToResult { chronometerDao.update(chronometer) }
     }
 
-    override fun chronometerWithLapsById(id: Long): Flow<ChronometerWithLaps?> {
-        return chronometerDao.chronometerWithLapsById(id)
+    override fun chronometerWithEventsById(id: Long): Flow<ChronometerWithEvents?> {
+        return chronometerDao.chronometerWithEventsById(id)
+    }
+
+    override fun chronometerWithLastEventById(id: Long): Flow<ChronometerWithLastEvent?> {
+        return chronometerDao.chronometerWithLastEventById(id)
+    }
+
+    override suspend fun updateChronometerIsActive(id: Long, isArchived: Boolean) = executeToResult {
+        chronometerDao.updateIsArchived(id, isArchived)
     }
 
     // endregion
     // region lap
 
-    override suspend fun registerLapIn(chronometer: ChronometerEntity) {
+    override suspend fun registerEventIn(chronometer: ChronometerEntity, eventType: EventType) {
         executeToResult {  // create new lap
-            lapsDao.insert(EventEntity(chronometerId = chronometer.id, type = EventType.LAP))
+            lapsDao.insert(EventEntity(chronometerId = chronometer.id, type = eventType))
+
+            val isActive = when (eventType) {
+                EventType.PAUSE -> false
+                EventType.RESUME -> true
+                EventType.LAP -> chronometer.isActive
+            }
+
+            val fromDate = if (eventType == EventType.LAP) ZonedDateTime.now()
+            else chronometer.fromDate
+
             // reset fromDate to now
-            chronometerDao.update(chronometer.copy(fromDate = ZonedDateTime.now()))
+            chronometerDao.update(
+                chronometer.copy(
+                    fromDate = fromDate,
+                    isActive = isActive
+                )
+            )
         }
     }
     // endregion

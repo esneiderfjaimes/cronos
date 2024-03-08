@@ -8,7 +8,10 @@ import androidx.lifecycle.ViewModel
 import com.nei.cronos.core.data.LocalRepository
 import com.nei.cronos.core.database.mappers.toDomain
 import com.nei.cronos.core.database.mappers.toUi
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
+import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
+import com.nei.cronos.core.database.models.EventEntity
+import com.nei.cronos.core.model.EventType
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
 import com.nei.cronos.utils.differenceParse
@@ -24,7 +27,7 @@ import java.time.Instant
 import java.util.Timer
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import kotlin.concurrent.timer
+import kotlin.concurrent.fixedRateTimer
 
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
@@ -47,30 +50,39 @@ class ChronometerViewModel @Inject constructor(
 
     init {
         launchIO {
-            localRepository.chronometerWithLapsById(args.chronometerId).catch {
-                Log.e(TAG, "flowChronometerWithLapsById(${args.chronometerId}): catch:", it)
-            }.collect { chronometerWithLaps ->
-                val uiState = _state.value
-                _state.value = chronometerWithLaps?.let {
-                    _currentTime.value = it.chronometer.fromDate.differenceParse(
-                        it.chronometer.format,
-                        currentLocale
-                    )
-                    if (uiState is ChronometerUiState.Success) {
-                        uiState.copy(chronometer = it.chronometer.toUi())
-                    } else {
-                        ChronometerUiState.Success(chronometer = it.chronometer.toUi())
-                    }
-                } ?: ChronometerUiState.Error
-            }
+            localRepository.chronometerWithLastEventById(args.chronometerId).catch {
+                Log.e(TAG, "collect(${args.chronometerId}): catch:", it)
+            }.collect(this@ChronometerViewModel::collector)
         }
-        startTimer()
     }
 
+    private fun collector(query: ChronometerWithLastEvent?) {
+        Log.d(TAG, "collect: $query")
+        if (query == null) {
+            _state.value = ChronometerUiState.Error
+            return
+        }
+
+        val newState = ChronometerUiState.Success(
+            chronometer = query.chronometer.toUi(),
+            lastEvent = query.lastEvent
+        )
+
+        updateLabel(newState)
+
+        if (newState.isPaused) {
+            timer?.cancel()
+        } else {
+            startTimer()
+        }
+        _state.value = newState
+    }
 
     private fun startTimer() {
+        Log.i(TAG, "startTimer")
         val atomicBoolean = AtomicBoolean(false)
-        timer = timer(period = 1000) {
+        timer?.cancel()
+        timer = fixedRateTimer(period = 1000) {
             launchIO {
                 if (atomicBoolean.compareAndSet(false, true)) {
                     Log.d(TAG, "Task started: ${Instant.now()}")
@@ -92,11 +104,26 @@ class ChronometerViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             val uiState = _state.value
             if (uiState is ChronometerUiState.Success) {
-                _currentTime.value = uiState.chronometer.fromDate.differenceParse(
-                    uiState.chronometer.format,
-                    currentLocale
-                )
+                updateLabel(uiState)
             }
+        }
+    }
+
+    private fun updateLabel(uiState: ChronometerUiState.Success) {
+        val chronometer = uiState.chronometer
+        val last = uiState.lastEvent
+        _currentTime.value = if (last != null && uiState.isPaused) {
+            differenceParse(
+                chronometer.format,
+                currentLocale,
+                chronometer.fromDate,
+                last.time
+            )
+        } else {
+            chronometer.fromDate.differenceParse(
+                chronometer.format,
+                currentLocale
+            )
         }
     }
 
@@ -131,9 +158,20 @@ class ChronometerViewModel @Inject constructor(
         }
     }
 
-    fun onNewLapClick(chronometer: ChronometerUi) {
+    fun onNewLapClick(chronometer: ChronometerUi, eventType: EventType) {
         launchIO {
-            localRepository.registerLapIn(chronometer.toDomain())
+            localRepository.registerEventIn(chronometer.toDomain(), eventType = eventType)
+        }
+    }
+
+    fun deleteChronometer() {
+        launchIO {
+            localRepository.updateChronometerIsActive(
+                id = args.chronometerId,
+                isArchived = true
+            ).also {
+                Log.i(TAG, "deleteChronometer: $it")
+            }
         }
     }
 
@@ -146,14 +184,17 @@ sealed interface ChronometerUiState {
 
     data class Success(
         val chronometer: ChronometerUi,
-        private val chronometerPreviews: ChronometerUi = chronometer,
+        val lastEvent: EventEntity? = null,
+        private val previousFormat: ChronometerFormat = chronometer.format,
     ) : ChronometerUiState {
         val enabledSaveButton: Boolean =
-            (chronometerPreviews.format != chronometer.format)
-                    && !chronometer.format.isAllFlagsDisabled
+            (previousFormat != chronometer.format && !chronometer.format.isAllFlagsDisabled)
+
+        val isPaused: Boolean =
+            (!chronometer.isActive && lastEvent?.type == EventType.PAUSE)
     }
 
-    object Error : ChronometerUiState
-    object Loading : ChronometerUiState
+    data object Error : ChronometerUiState
+    data object Loading : ChronometerUiState
 }
 

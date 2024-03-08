@@ -1,6 +1,6 @@
 package com.nei.cronos.core.database.mappers
 
-import com.nei.cronos.core.database.models.SectionWithChronometers
+import com.nei.cronos.core.database.embeddeds.SectionWithChronometers
 import com.nei.cronos.domain.models.SectionUi
 
 fun SectionWithChronometers.toUi() = SectionUi(

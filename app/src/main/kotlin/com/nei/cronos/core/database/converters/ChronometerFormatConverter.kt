@@ -1,7 +1,7 @@
 package com.nei.cronos.core.database.converters
 
 import androidx.room.TypeConverter
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
 
 class ChronometerFormatConverter {
     @TypeConverter

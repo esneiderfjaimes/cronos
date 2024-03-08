@@ -1,7 +1,7 @@
 package com.nei.cronos.domain.models
 
 import androidx.compose.runtime.Stable
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.database.models.SectionEntity
 import java.time.ZoneId
 import java.time.ZonedDateTime

@@ -1,6 +1,6 @@
 package com.nei.cronos.utils
 
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
 import org.junit.Test
 import java.time.ZoneId
 import java.time.ZonedDateTime

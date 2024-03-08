@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import com.nei.cronos.core.database.models.SectionEntity
-import com.nei.cronos.core.database.models.SectionWithChronometers
+import com.nei.cronos.core.database.embeddeds.SectionWithChronometers
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,7 +17,7 @@ interface SectionDao {
     fun sections(): Flow<List<SectionEntity>>
 
     @Transaction
-    @Query("SELECT * FROM sections")
+    @Query("SELECT * FROM sections WHERE is_archived = false")
     fun sectionsWithChronometers(): Flow<List<SectionWithChronometers>>
 
     @Transaction

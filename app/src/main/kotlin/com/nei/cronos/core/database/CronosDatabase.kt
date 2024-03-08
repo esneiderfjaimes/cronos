@@ -17,11 +17,13 @@ import com.nei.cronos.core.database.daos.SectionDao
 import com.nei.cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.database.models.EventEntity
 import com.nei.cronos.core.database.models.SectionEntity
+import com.nei.cronos.core.database.views.ChronometerWithLastEvent
 import com.nei.cronos.utils.Mocks
 
 @Database(
     version = 2,
     entities = [SectionEntity::class, ChronometerEntity::class, EventEntity::class],
+    views = [ChronometerWithLastEvent::class],
     exportSchema = true,
 )
 @TypeConverters(
@@ -62,6 +64,7 @@ abstract class CronosDatabase : RoomDatabase() {
                         Log.d(TAG, "callback onDestructiveMigration called")
                     }
                 })
+                fallbackToDestructiveMigrationOnDowngrade()
                 addMigrations(DatabaseMigrations.Schema1to2)
                 build()
             }

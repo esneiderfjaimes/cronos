@@ -15,7 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.nei.cronos.core.database.models.ChronometerFormat
+import com.nei.cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.component.ChronometerFlag
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.SwitchFormat

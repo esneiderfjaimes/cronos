@@ -7,7 +7,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.nei.cronos.core.database.models.ChronometerEntity
-import com.nei.cronos.core.database.models.ChronometerWithLaps
+import com.nei.cronos.core.database.embeddeds.ChronometerWithEvents
+import com.nei.cronos.core.database.embeddeds.ChronometerWithLastEvent
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,13 +22,26 @@ interface ChronometerDao {
     @Query("SELECT * FROM chronometers WHERE is_archived = false")
     fun chronometers(): Flow<List<ChronometerEntity>>
 
+    @Query("SELECT * FROM chronometer_with_last_event")
+    fun getAllChronometersWithLastEvent(): Flow<List<ChronometerWithLastEvent>>
+
+    @Query("SELECT * FROM chronometer_with_last_event WHERE id = :chronometerId")
+    fun getAllChronometersWithLastEventById(chronometerId: Long): Flow<ChronometerWithLastEvent>
+
     @Update
     suspend fun update(chronometer: ChronometerEntity)
+
+    @Query("UPDATE chronometers SET is_archived = :isArchived WHERE id = :chronometerId")
+    suspend fun updateIsArchived(chronometerId: Long, isArchived: Boolean) : Int
 
     @Delete
     suspend fun delete(chronometer: ChronometerEntity)
 
     @Transaction
     @Query("SELECT * FROM chronometers WHERE id = :chronometerId")
-    fun chronometerWithLapsById(chronometerId: Long): Flow<ChronometerWithLaps?>
+    fun chronometerWithEventsById(chronometerId: Long): Flow<ChronometerWithEvents?>
+
+    @Transaction
+    @Query("SELECT * FROM chronometers WHERE id = :chronometerId")
+    fun chronometerWithLastEventById(chronometerId: Long): Flow<ChronometerWithLastEvent?>
 }
