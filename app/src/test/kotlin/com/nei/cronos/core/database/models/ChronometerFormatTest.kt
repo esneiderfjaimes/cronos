@@ -1,5 +1,6 @@
 package com.nei.cronos.core.database.models
 
+import cronos.core.model.ChronometerFormat
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 

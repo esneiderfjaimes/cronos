@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nei.cronos.core.datastore.domain.SettingsRepository
 import com.nei.cronos.core.datastore.domain.model.SettingsState
+import com.nei.cronos.utils.launchIO
+import cronos.core.database.dao.ChronometerDao
+import cronos.core.database.dao.SectionDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    settingsRepository: SettingsRepository
+    settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<MainUiState> = settingsRepository.getSettingsFlow().map {
@@ -26,6 +29,6 @@ class MainViewModel @Inject constructor(
 }
 
 sealed interface MainUiState {
-    object Loading : MainUiState
+    data object Loading : MainUiState
     data class Success(val settingsState: SettingsState) : MainUiState
 }

@@ -2,7 +2,7 @@ package com.nei.cronos.ui.pages.addchronometer
 
 import androidx.lifecycle.ViewModel
 import com.nei.cronos.core.data.LocalRepository
-import com.nei.cronos.core.database.models.ChronometerEntity
+import cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.designsystem.component.Time
 import com.nei.cronos.utils.launchIO
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +39,7 @@ class AddChronometerViewModel @Inject constructor(
             val zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault())
             localRepository.insertChronometer(
                 ChronometerEntity(
-                    title = title, allDateTime = zonedDateTime
+                    title = title.trim(), allDateTime = zonedDateTime
                 )
             )
         }

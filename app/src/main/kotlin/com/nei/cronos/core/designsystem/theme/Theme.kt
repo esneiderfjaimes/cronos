@@ -1,6 +1,7 @@
 package com.nei.cronos.core.designsystem.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -99,7 +100,7 @@ fun CronosTheme(
             if (darkTheme) MonoChromaticDarkColorScheme else MonoChromaticLightColorScheme
         }
 
-        dynamicColor -> {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
@@ -110,7 +111,7 @@ fun CronosTheme(
     val appColorScheme = AppColorScheme()
     val currentTheme = appColorScheme.getTheme(appTheme, darkTheme)
     val colorScheme = when {
-        dynamicColor -> {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S-> {
             val context = LocalContext.current
 
             when {

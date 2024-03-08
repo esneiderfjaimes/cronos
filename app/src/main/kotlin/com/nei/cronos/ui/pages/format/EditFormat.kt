@@ -1,23 +1,23 @@
 package com.nei.cronos.ui.pages.format
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.nei.cronos.core.database.models.ChronometerFormat
+import androidx.compose.ui.unit.dp
+import cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.component.ChronometerFlag
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.SwitchFormat
@@ -27,68 +27,68 @@ import com.nei.cronos.core.designsystem.utils.ThemePreviews
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EditFormat(
-    format: ChronometerFormat,
+    formatProvider: () -> ChronometerFormat,
     onUpdate: (ChronometerFormat) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(modifier) {
+    FlowRow(modifier.sizeIn(maxWidth = 600.dp)) {
         ChronometerFlag(
             text = "Years",
-            checked = format.showYear,
-            onCheckedChange = { onUpdate(format.copy(showYear = it)) },
+            checked = formatProvider().showYear,
+            onCheckedChange = { onUpdate(formatProvider().copy(showYear = it)) },
             modifier = Modifier.weight(1f)
         )
         ChronometerFlag(
             text = "Months",
-            checked = format.showMonth,
-            onCheckedChange = { onUpdate(format.copy(showMonth = it)) },
+            checked = formatProvider().showMonth,
+            onCheckedChange = { onUpdate(formatProvider().copy(showMonth = it)) },
             modifier = Modifier.weight(1f)
         )
         ChronometerFlag(
             text = "Weeks",
-            checked = format.showWeek,
-            onCheckedChange = { onUpdate(format.copy(showWeek = it)) },
+            checked = formatProvider().showWeek,
+            onCheckedChange = { onUpdate(formatProvider().copy(showWeek = it)) },
             modifier = Modifier.weight(1f)
         )
         ChronometerFlag(
             text = "Days",
-            checked = format.showDay,
-            onCheckedChange = { onUpdate(format.copy(showDay = it)) },
+            checked = formatProvider().showDay,
+            onCheckedChange = { onUpdate(formatProvider().copy(showDay = it)) },
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.fillMaxWidth())
         ChronometerFlag(
             text = "Hours",
-            checked = format.showHour,
-            onCheckedChange = { onUpdate(format.copy(showHour = it)) },
+            checked = formatProvider().showHour,
+            onCheckedChange = { onUpdate(formatProvider().copy(showHour = it)) },
             modifier = Modifier.weight(1f)
         )
         ChronometerFlag(
             text = "Minutes",
-            checked = format.showMinute,
-            onCheckedChange = { onUpdate(format.copy(showMinute = it)) },
+            checked = formatProvider().showMinute,
+            onCheckedChange = { onUpdate(formatProvider().copy(showMinute = it)) },
             modifier = Modifier.weight(1f)
         )
         ChronometerFlag(
             text = "Seconds",
-            checked = format.showSecond,
-            onCheckedChange = { onUpdate(format.copy(showSecond = it)) },
+            checked = formatProvider().showSecond,
+            onCheckedChange = { onUpdate(formatProvider().copy(showSecond = it)) },
             modifier = Modifier.weight(1f)
         )
         SwitchFormat(
             text = "Hide counters equal to zero",
-            checked = format.hideZeros,
-            onCheckedChange = { onUpdate(format.copy(hideZeros = it)) }
+            checked = formatProvider().hideZeros,
+            onCheckedChange = { onUpdate(formatProvider().copy(hideZeros = it)) }
         )
         AnimatedVisibility(
-            visible = format.timeFlagsEnabled,
+            visible = formatProvider().timeFlagsEnabled,
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically(),
         ) {
             SwitchFormat(
                 text = "Compact time",
-                checked = format.compactTimeEnabled,
-                onCheckedChange = { onUpdate(format.copy(compactTimeEnabled = it)) }
+                checked = formatProvider().compactTimeEnabled,
+                onCheckedChange = { onUpdate(formatProvider().copy(compactTimeEnabled = it)) }
             )
         }
     }
@@ -100,7 +100,10 @@ fun EditFormatPreview() {
     var format by remember { mutableStateOf(ChronometerFormat()) }
     CronosTheme {
         CronosBackground {
-            EditFormat(format, onUpdate = { format = it })
+            EditFormat(
+                formatProvider = { format },
+                onUpdate = { format = it }
+            )
         }
     }
 }

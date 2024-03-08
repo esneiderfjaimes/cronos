@@ -5,16 +5,16 @@ core-splashscreen = "1.0.1"
 
 activity-compose = "1.8.2"
 
-hilt-android = "2.48.1"
-hilt-android-compiler = "2.48.1"
-hilt-compiler = "2.48.1"
+hilt-android = "2.51"
+hilt-android-compiler = "2.51"
+hilt-compiler = "2.51"
 
-hilt-navigation-compose = "1.1.0"
+hilt-navigation-compose = "1.2.0"
 lifecycle-viewmodel-compose = "2.7.0"
 lifecycle-runtime-ktx = "2.7.0"
 
-material-icons-extended = "1.6.1"
-compose-bom = "2024.02.00"
+material-icons-extended = "1.6.2"
+compose-bom = "2024.02.01"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
@@ -23,8 +23,10 @@ room-runtime = "2.6.1"
 datastore-preferences = "1.0.0"
 
 # Plugins
-agp = "8.2.2"
-org-jetbrains-kotlin-android = "1.8.10"
+agp = "8.3.0"
+org-jetbrains-kotlin-android = "1.9.22"
+appcompat = "1.6.1"
+material = "1.11.0"
 
 [libraries]
 # Core
@@ -63,7 +65,7 @@ ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version = "1.6.1" }
+ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version = "1.6.2" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
 # Material
@@ -74,10 +76,33 @@ material3 = { group = "androidx.compose.material3", name = "material3", version 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
 
-[bundles]
+# module
+hilt = { id = "com.google.dagger.hilt.android" , version = "2.51" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 
+[bundles]
+compose-ui = [
+    "splashscreen",
+    "activity-compose",
+    "material3",
+    "material-icons-extended",
+    "ui",
+    "ui-graphics",
+    "ui-tooling-preview",
+]
+room = [
+    "room-runtime",
+    "room-ktx"
+]
+lifecycle = [
+    "lifecycle-runtime-ktx",
+    "lifecycle-viewmodel-compose",
+    "lifecycle-runtime-compose"
+]

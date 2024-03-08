@@ -12,10 +12,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
@@ -25,7 +30,12 @@ fun SwitchFormat(text: String, checked: Boolean, onCheckedChange: (Boolean) -> U
     val color = if (isSystemInDarkTheme()) Color.White else Color.Black
     val colorContainer = if (isSystemInDarkTheme()) Color.Black else Color.White
     Surface(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .semantics(mergeDescendants = true) {
+                this.contentDescription = "Switch $text"
+                this.role = Role.Switch
+            }.minimumInteractiveComponentSize(),
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 1.dp,
         border = if (checked) BorderStroke(2.dp, color) else null,
@@ -62,8 +72,8 @@ fun EditFormatPreview() {
     CronosTheme {
         CronosBackground {
             Column {
-                SwitchFormat("Title", true) {}
-                SwitchFormat("Title", false) {}
+                SwitchFormat("Title, example checked", true) {}
+                SwitchFormat("Title, example unchecked", false) {}
             }
         }
     }

@@ -20,12 +20,13 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import com.nei.cronos.core.designsystem.component.DrawerState
-import com.nei.cronos.core.designsystem.component.DrawerValue
-import com.nei.cronos.core.designsystem.component.NeiDrawer
-import com.nei.cronos.core.designsystem.component.rememberDrawerState
+import com.nei.cronos.core.designsystem.component.drawer.DrawerState
+import com.nei.cronos.core.designsystem.component.drawer.DrawerValue
+import com.nei.cronos.core.designsystem.component.drawer.NeiDrawer
+import com.nei.cronos.core.designsystem.component.drawer.rememberDrawerState
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CronosScaffold(
     drawerState: DrawerState = rememberDrawerState(),
@@ -37,10 +38,10 @@ fun CronosScaffold(
 ) {
     val scope = rememberCoroutineScope()
     NeiDrawer(
-        drawerState = drawerState,
+        state = drawerState,
         scope = scope,
         contentDrawer = drawerContent
-    ) { draggableContent ->
+    ) {
         Scaffold(
             topBar = {
                 CronosTopAppBar(
@@ -65,10 +66,8 @@ fun CronosScaffold(
                     }
                 }
             },
-        ) {
-            content.invoke(it)
-            draggableContent.invoke()
-        }
+            content = content
+        )
     }
 
     BackHandler(drawerState.currentValue == DrawerValue.Show) {

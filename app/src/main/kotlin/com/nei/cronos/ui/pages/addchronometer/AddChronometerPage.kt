@@ -6,11 +6,13 @@
 package com.nei.cronos.ui.pages.addchronometer
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -21,21 +23,26 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarToday
-import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material3.CalendarLocale
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,14 +54,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.os.ConfigurationCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nei.cronos.core.designsystem.component.AddChronometerAction
-import com.nei.cronos.core.designsystem.component.CronosBackground
+import com.nei.cronos.core.designsystem.component.Action
 import com.nei.cronos.core.designsystem.component.DatePickerDialog
 import com.nei.cronos.core.designsystem.component.TextField
 import com.nei.cronos.core.designsystem.component.TimePickerDialog
@@ -66,8 +78,6 @@ import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
@@ -96,6 +106,9 @@ fun AddChronometerPage(
 
             Surface(
                 shape = RoundedCornerShape(24.dp, 24.dp, 0.dp, 0.dp),
+                modifier = Modifier
+                    .sizeIn(maxWidth = 600.dp)
+                    .align(Alignment.CenterHorizontally)
             ) {
                 Column {
                     AddChronometerPage(
@@ -159,7 +172,8 @@ fun AddChronometerPage(
         // time
         timeState = timeState,
         // buttons
-        addChronometerClick = {
+        addChronometerClick = click@{
+            if (title.isBlank()) return@click
             scope.launch {
                 viewModel.insertChronometer(
                     title = title,
@@ -171,6 +185,7 @@ fun AddChronometerPage(
                 onOpenBottomSheetChange(false)
             }
         },
+        closeBottomSheet = { onOpenBottomSheetChange(false) },
         enabledButton = enabledButton
     )
 }
@@ -185,63 +200,103 @@ private fun AddChronometerContent(
     dateState: DatePickerState,
     showDatePicker: Boolean,
     onShowDatePickerChange: (Boolean) -> Unit,
-    // title
+    // time
     timeState: TimePickerPlusState,
     // buttons
     addChronometerClick: () -> Unit,
-    enabledButton: Boolean
+    enabledButton: Boolean,
+    dateFormatter: DatePickerFormatter = remember {
+        DatePickerDefaults.dateFormatter(
+            selectedDateSkeleton = "MMddyy",
+            yearSelectionSkeleton = "MMddyy",
+        )
+    },
+    // bottom sheet
+    closeBottomSheet: () -> Unit = {},
 ) {
+    val showSpacerVertical by remember {
+        derivedStateOf { dateState.selectedDateMillis != null || timeState.time != null }
+    }
+    val showSpacerHorizontal by remember {
+        derivedStateOf { dateState.selectedDateMillis != null && timeState.time != null }
+    }
+
     TextField(
         value = title,
         onValueChange = onTitleChange,
         placeholder = { Text("Name of the new stopwatch") },
-        modifier = Modifier.focusRequester(focusRequester),
-        keyboardActions = KeyboardActions {
-            addChronometerClick.invoke()
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-    )
-    Row(
-        Modifier.padding(horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AddChronometerAction(
-            formattedValue = dateState.selectedDateMillis?.let {
-
-                // Obtén el Locale del dispositivo
-                val locale = Locale.getDefault()
-
-                // Obtiene el patrón de formato de fecha del Locale del dispositivo
-                val dateFormatPattern = DateTimeFormatter.ofPattern("d/M/yyyy", locale)
-
-                // Obtiene la fecha actual (sin hora)
-                val currentDate = Instant.ofEpochMilli(it).atZone(ZoneId.of("UTC")).toLocalDate()
-
-                // Formatea la fecha utilizando el formatter
-                val formattedDate = currentDate.format(dateFormatPattern)
-
-                formattedDate
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp)
+            .focusRequester(focusRequester)
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Enter) {
+                    addChronometerClick()
+                    return@onKeyEvent true
+                }
+                if (keyEvent.key == Key.Escape) {
+                    closeBottomSheet()
+                    return@onKeyEvent true
+                }
+                return@onKeyEvent false
             },
+        keyboardActions = KeyboardActions(onDone = {
+            addChronometerClick()
+        }),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = if (enabledButton) ImeAction.Done else ImeAction.None
+        ),
+    )
+
+    AnimatedVisibility(visible = showSpacerVertical) {
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+    FlowRow(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+
+        Action(
+            isChecked = dateState.selectedDateMillis != null,
+            text = {
+                val defaultLocale = defaultLocale()
+                val formattedDate = dateFormatter.formatDate(
+                    dateMillis = dateState.selectedDateMillis,
+                    locale = defaultLocale
+                )
+                Text(text = formattedDate ?: "")
+            },
+            imageVector = Icons.Rounded.CalendarToday,
             onClick = { onShowDatePickerChange.invoke(true) },
-            onCloseClick = { dateState.selectedDateMillis = null }
-        ) {
-            Icon(Icons.Outlined.CalendarToday, contentDescription = null)
+            onCloseClick = { dateState.selectedDateMillis = null },
+            contentDescription = "Show date picker"
+        )
+
+        AnimatedVisibility(visible = showSpacerHorizontal) {
+            Spacer(modifier = Modifier.width(4.dp))
         }
-        AddChronometerAction(
-            formattedValue = timeState.time?.format(),
+
+        Action(
+            isChecked = timeState.time != null,
+            text = { Text(text = timeState.time?.format() ?: "") },
+            imageVector = Icons.Rounded.Schedule,
             onClick = { timeState.showingDialog = true },
-            onCloseClick = { timeState.time = null }
-        ) {
-            Icon(Icons.Outlined.Schedule, contentDescription = null)
-        }
+            onCloseClick = { timeState.time = null },
+            contentDescription = "Show time picker"
+        )
 
         Spacer(modifier = Modifier.weight(1f))
         TextButton(
             onClick = addChronometerClick,
-            enabled = enabledButton
+            enabled = enabledButton,
+            modifier = Modifier.padding(horizontal = 4.dp)
         ) {
             Text(text = "Start")
         }
+    }
+
+    AnimatedVisibility(visible = showSpacerVertical) {
+        Spacer(modifier = Modifier.height(8.dp))
     }
 
     TimePickerDialog(
@@ -256,25 +311,78 @@ private fun AddChronometerContent(
     )
 }
 
+@Composable
+@ReadOnlyComposable
+internal fun defaultLocale(): CalendarLocale {
+    return ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
+}
+
 @ThemePreviews
 @Composable
 fun AddChronometerPagePreview() {
+    BasePreview()
+}
+
+@ThemePreviews
+@Composable
+fun AddChronometerPageSelectDatePreview() {
+    BasePreview(
+        dateState = rememberDatePickerState(
+            initialSelectedDateMillis = Instant.now().toEpochMilli()
+        )
+    )
+}
+
+@ThemePreviews
+@Composable
+fun AddChronometerPageSelectTimePreview() {
+    BasePreview(
+        pickerPlusState = rememberTimePickerPlusState(initialHour = 20, initialMinute = 45)
+    )
+}
+
+@ThemePreviews
+@Composable
+fun AddChronometerPageSelectDateAndTimePreview() {
+    BasePreview(
+        dateState = rememberDatePickerState(
+            initialSelectedDateMillis = Instant.now().toEpochMilli()
+        ),
+        pickerPlusState = rememberTimePickerPlusState(initialHour = 20, initialMinute = 45)
+    )
+}
+
+@Composable
+private fun BasePreview(
+    dateState: DatePickerState = rememberDatePickerState(),
+    pickerPlusState: TimePickerPlusState = rememberTimePickerPlusState(),
+) {
     CronosTheme {
-        CronosBackground(modifier = Modifier.fillMaxWidth()) {
-            Column {
-                AddChronometerContent(
-                    title = "",
-                    onTitleChange = {},
-                    focusRequester = FocusRequester(),
-                    dateState = rememberDatePickerState(
-                        Instant.now().toEpochMilli()
-                    ),
-                    showDatePicker = false,
-                    onShowDatePickerChange = {},
-                    timeState = rememberTimePickerPlusState(),
-                    addChronometerClick = {},
-                    enabledButton = true
-                )
+        Column(
+            modifier = Modifier
+                .background(Color.Gray)
+                .fillMaxWidth()
+        ) {
+            // Spacer(modifier = Modifier.weight(1f))
+            Surface(
+                shape = RoundedCornerShape(24.dp, 24.dp, 0.dp, 0.dp),
+                modifier = Modifier
+                    .sizeIn(maxWidth = 600.dp)
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                Column {
+                    AddChronometerContent(
+                        title = "",
+                        onTitleChange = {},
+                        focusRequester = FocusRequester(),
+                        dateState = dateState,
+                        showDatePicker = false,
+                        onShowDatePickerChange = {},
+                        timeState = pickerPlusState,
+                        addChronometerClick = {},
+                        enabledButton = true
+                    )
+                }
             }
         }
     }
