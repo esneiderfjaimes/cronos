@@ -23,10 +23,14 @@ room-runtime = "2.6.1"
 datastore-preferences = "1.0.0"
 
 # Plugins
+# android gradle plugin
 agp = "8.3.0"
 org-jetbrains-kotlin-android = "1.9.22"
 appcompat = "1.6.1"
 material = "1.11.0"
+kotlin = "1.9.0"
+ksp = "1.9.22-1.0.17"
+gmsPlugin = "4.3.14"
 
 [libraries]
 # Core
@@ -79,13 +83,27 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
+# Dependencies of the included build-logic
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+work-testing = { group = "androidx.work", name = "work-testing", version = "2.8.1" }
+
 [plugins]
-com-android-application = { id = "com.android.application", version.ref = "agp" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
+jetbrains-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
 
 # module
-hilt = { id = "com.google.dagger.hilt.android" , version = "2.51" }
+hilt = { id = "com.google.dagger.hilt.android", version = "2.51" }
+
+androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidTest = { id = "com.android.test", version.ref = "agp" }
+
+gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [bundles]
 compose-ui = [
