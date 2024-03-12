@@ -13,8 +13,8 @@ hilt-navigation-compose = "1.2.0"
 lifecycle-viewmodel-compose = "2.7.0"
 lifecycle-runtime-ktx = "2.7.0"
 
-material-icons-extended = "1.6.2"
-compose-bom = "2024.02.01"
+material-icons-extended = "1.6.3"
+compose-bom = "2024.02.02"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
@@ -28,9 +28,9 @@ agp = "8.3.0"
 org-jetbrains-kotlin-android = "1.9.22"
 appcompat = "1.6.1"
 material = "1.11.0"
-kotlin = "1.9.0"
+kotlin = "1.9.22"
 ksp = "1.9.22-1.0.17"
-gmsPlugin = "4.3.14"
+gmsPlugin = "4.4.1"
 
 [libraries]
 # Core
@@ -69,12 +69,12 @@ ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version = "1.6.2" }
+ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version = "1.6.3" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
 # Material
 material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material-icons-extended" }
-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.2.0" }
+material3 = { group = "androidx.compose.material3", name = "material3", version = "1.2.1" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -87,7 +87,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
-work-testing = { group = "androidx.work", name = "work-testing", version = "2.8.1" }
+work-testing = { group = "androidx.work", name = "work-testing", version = "2.9.0" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }

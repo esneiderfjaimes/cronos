@@ -1,7 +1,6 @@
 plugins {
     id("cronos.android.application")
     id("cronos.android.hilt")
-    id("cronos.android.room")
 }
 
 android {
