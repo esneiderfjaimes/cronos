@@ -1,20 +1,13 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    alias(libs.plugins.com.android.application)
-    alias(libs.plugins.org.jetbrains.kotlin.android)
-    kotlin("kapt")
-    alias(libs.plugins.hilt)
+    id("cronos.android.application")
+    id("cronos.android.hilt")
 }
 
 android {
     namespace = "com.nei.cronos"
-    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.nei.cronos"
-        minSdk = 30
-        targetSdk = 34
         versionCode = 2
         versionName = "0.1.0-beta2"
 
@@ -46,23 +39,20 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+
     kotlinOptions {
         jvmTarget = "17"
-        tasks.withType(KotlinCompile::class.java).configureEach {
-            kotlinOptions.jvmTarget = "17"
-        }
     }
+
     buildFeatures {
         compose = true
     }
+
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
         kotlinCompilerExtensionVersion = "1.5.10"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -71,7 +61,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.core.ktx)
     implementation(project(":core:model"))
     implementation(project(":core:database"))
@@ -86,15 +75,6 @@ dependencies {
 
     // Lifecycle
     implementation(libs.bundles.lifecycle)
-
-    // Dagger
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-
-    // Room
-    implementation(libs.bundles.room)
-    //noinspection KaptUsageInsteadOfKsp
-    kapt(libs.room.compiler)
 
     // Preferences
     implementation(libs.datastore.preferences)

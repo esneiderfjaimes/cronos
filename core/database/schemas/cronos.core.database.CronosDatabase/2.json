@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "05e5172c22b2fe6694916e8c48c24abc",
+    "identityHash": "2cfbe41790e586f2475eb9c3fb29f15f",
     "entities": [
       {
         "tableName": "sections",
@@ -212,10 +212,23 @@
         ]
       }
     ],
-    "views": [],
+    "views": [
+      {
+        "viewName": "last_event_ref",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT chronometer_id, MAX(id) AS last_event_id FROM events GROUP BY chronometer_id"
+      },
+      {
+        "viewName": "chronometer_with_last_event",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.id as c_id,c.title as c_title, c.created_at as c_created_at, c.start_date as c_start_date, c.format as c_format, c.section_id as c_section_id, c.is_active as c_is_active, c.is_archived as c_is_archived, e.id as last_event_id, e.time as last_event_time, e.type as last_event_type FROM chronometers AS c LEFT JOIN last_event_ref AS lef ON c.id = lef.chronometer_id LEFT JOIN events AS e ON e.id = lef.last_event_id"
+      },
+      {
+        "viewName": "sections_view",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM sections AS s LEFT JOIN chronometer_with_last_event AS c ON s.id = c.c_section_id"
+      }
+    ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '05e5172c22b2fe6694916e8c48c24abc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2cfbe41790e586f2475eb9c3fb29f15f')"
     ]
   }
 }

@@ -1,55 +1,36 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.org.jetbrains.kotlin.android)
-    kotlin("kapt")
-    alias(libs.plugins.hilt)
+    id("cronos.android.library")
+    id("cronos.android.hilt")
+    id("cronos.android.room")
 }
 
 android {
     namespace = "cronos.core.database"
-    compileSdk = 34
 
     defaultConfig {
-        minSdk = 30
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+
+    sourceSets {
+        val androidTestAssets = sourceSets.getByName("androidTest").assets
+        androidTestAssets.srcDirs(files("$projectDir/schemas"))
     }
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-
     implementation(libs.core.ktx)
     implementation(project(":core:model"))
 
     // Lifecycle
     implementation(libs.bundles.lifecycle)
-
-    // Dagger
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
-
-    // Room
-    implementation(libs.bundles.room)
-    //noinspection KaptUsageInsteadOfKsp
-    kapt(libs.room.compiler)
 
     // Test
     testImplementation(libs.junit)
