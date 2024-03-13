@@ -1,7 +1,7 @@
 package com.nei.cronos.ui.pages.addchronometer
 
 import androidx.lifecycle.ViewModel
-import com.nei.cronos.core.data.LocalRepository
+import cronos.core.data.repository.LocalRepository
 import cronos.core.database.models.ChronometerEntity
 import com.nei.cronos.core.designsystem.component.Time
 import com.nei.cronos.utils.launchIO

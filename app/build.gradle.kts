@@ -15,16 +15,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments["room.schemaLocation"] = "$projectDir/schemas"
-            }
-        }
-    }
-
-    sourceSets {
-        val androidTestAssets = sourceSets.getByName("androidTest").assets
-        androidTestAssets.srcDirs(files("$projectDir/schemas"))
     }
 
     buildTypes {
@@ -62,8 +52,10 @@ android {
 
 dependencies {
     implementation(libs.core.ktx)
-    implementation(project(":core:model"))
+    implementation(project(":core:data"))
     implementation(project(":core:database"))
+    implementation(project(":core:datastore"))
+    implementation(project(":core:model"))
 
     // Compose
     implementation(platform(libs.compose.bom))

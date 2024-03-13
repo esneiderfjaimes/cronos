@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.nei.cronos.core.data.LocalRepository
+import cronos.core.data.repository.LocalRepository
 import com.nei.cronos.core.database.mappers.toDomain
 import com.nei.cronos.core.database.mappers.toUi
 import com.nei.cronos.domain.models.ChronometerUi

@@ -2,11 +2,8 @@ package com.nei.cronos.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nei.cronos.core.datastore.domain.SettingsRepository
-import com.nei.cronos.core.datastore.domain.model.SettingsState
-import com.nei.cronos.utils.launchIO
-import cronos.core.database.dao.ChronometerDao
-import cronos.core.database.dao.SectionDao
+import cronos.core.data.repository.SettingsRepository
+import cronos.core.model.SettingsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +16,7 @@ class MainViewModel @Inject constructor(
     settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-    val uiState: StateFlow<MainUiState> = settingsRepository.getSettingsFlow().map {
+    val uiState: StateFlow<MainUiState> = settingsRepository.settingsState.map {
         MainUiState.Success(it)
     }.stateIn(
         scope = viewModelScope,

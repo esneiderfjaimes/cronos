@@ -1,4 +1,4 @@
-package com.nei.cronos.core.data
+package cronos.core.data.repository
 
 import cronos.core.database.embeddeds.ChronometerWithEvents
 import cronos.core.database.embeddeds.ChronometerWithLastEvent
@@ -12,7 +12,6 @@ interface LocalRepository {
     suspend fun insertSection(section: SectionEntity)
 
     fun sections(): Flow<List<SectionEntity>>
-
 
     // endregion
     // region chronometer

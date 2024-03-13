@@ -2,21 +2,19 @@ package cronos.core.database.converter
 
 import androidx.room.TypeConverter
 import cronos.core.model.Ids
+import cronos.core.model.IdsParser
+import cronos.core.model.compact
 
 class IdsConverter {
 
     @TypeConverter
     fun stringToIds(ids: String): Ids {
-        if (ids.isBlank()) return emptyList()
-        return ids.split(",")
-            .takeIf { it.isNotEmpty() }
-            ?.map { it.toLong() }
-            ?: emptyList()
+        return IdsParser.from(ids)
     }
 
     @TypeConverter
     fun idsToString(ids: Ids): String {
-        return ids.joinToString(",")
+        return ids.compact()
     }
 
 }

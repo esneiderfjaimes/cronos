@@ -21,5 +21,8 @@ rootProject.name = "Cronos"
 
 include(":app")
 
+include(":core:data")
+
 include(":core:database")
+include(":core:datastore")
 include(":core:model")

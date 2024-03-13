@@ -1,6 +1,6 @@
-package com.nei.cronos.core.data
+package cronos.core.data.repository
 
-import com.nei.cronos.core.common.result.executeToResult
+import cronos.core.data.utils.executeToResult
 import cronos.core.database.dao.ChronometerDao
 import cronos.core.database.dao.EventDao
 import cronos.core.database.dao.SectionDao
