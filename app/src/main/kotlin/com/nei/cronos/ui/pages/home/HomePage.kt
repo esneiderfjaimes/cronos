@@ -55,6 +55,7 @@ fun HomeRoute(
     drawerState: DrawerState,
     onChronometerClick: OnChronometerClick,
     viewModel: HomeViewModel = hiltViewModel(),
+    onSettingsClick: () -> Unit,
 ) {
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     val state by viewModel.state.collectAsState()
@@ -63,7 +64,8 @@ fun HomeRoute(
         openBottomSheet = openBottomSheet,
         onOpenBottomSheetChange = { openBottomSheet = it },
         state = state,
-        onChronometerClick = onChronometerClick
+        onChronometerClick = onChronometerClick,
+        onSettingsClick = onSettingsClick
     )
 }
 
@@ -74,10 +76,16 @@ private fun HomeScreen(
     onOpenBottomSheetChange: (Boolean) -> Unit = {},
     state: HomeViewModel.HomeState,
     onChronometerClick: OnChronometerClick = {},
+    onSettingsClick: () -> Unit = {},
 ) {
     CronosScaffold(
         drawerState = drawerState,
-        drawerContent = { CronosDrawerContent(drawerState) },
+        drawerContent = {
+            CronosDrawerContent(
+                drawerState = drawerState,
+                onSettingsClick = onSettingsClick
+            )
+        },
         openBottomSheet = openBottomSheet,
         onOpenBottomSheetChange = onOpenBottomSheetChange,
         modalBottomSheetContent = {

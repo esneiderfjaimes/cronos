@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Last Time</string>
     <string name="first_chronometer_title">desde que uso la aplicación</string>
+
+    <!-- Settings -->
+    <string name="title_settings_screen">Configuración</string>
+    <string name="use_dynamic_colors">Usar colores dinamicos</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
+    <string name="dark_mode">Modo oscuro</string>
+    <string name="off" tools:override="true">Encendido</string>
+    <string name="on" tools:override="true">Apagado</string>
+    <string name="system">Definido por el sistema</string>
 </resources>

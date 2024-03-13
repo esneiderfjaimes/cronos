@@ -27,6 +27,23 @@ data class ChronometerFormat(
         return flags
     }
 
+    private fun getUniqueActiveFlag(): ShowFlagType? {
+        val flags = toFlags()
+        val activeFlagsCount = ShowFlagType.entries.count { flag ->
+            (flags and (1 shl flag.ordinal)) != 0
+        }
+
+        if (activeFlagsCount != 1) {
+            return null
+        }
+
+        val activeFlag = ShowFlagType.entries.firstOrNull { flag ->
+            val index = ShowFlagType.entries.indexOf(flag)
+            (flags and (1 shl index)) != 0
+        }
+        return activeFlag
+    }
+
     val timeFlagsEnabled: Boolean
         get() = showMinute && showHour
 
@@ -55,5 +72,15 @@ data class ChronometerFormat(
             showSecond = true,
             hideZeros = true
         )
+    }
+
+    enum class ShowFlagType {
+        SECOND,
+        MINUTE,
+        HOUR,
+        DAY,
+        WEEK,
+        MONTH,
+        YEAR
     }
 }

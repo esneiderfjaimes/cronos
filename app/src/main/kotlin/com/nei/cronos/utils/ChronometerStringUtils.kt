@@ -76,6 +76,51 @@ fun differenceParse(
     }
 }
 
+fun differenceParseUniqueFormat(
+    format: ChronometerFormat.ShowFlagType,
+    locale: Locale,
+    startInclusive: ZonedDateTime,
+    endExclusive: ZonedDateTime
+) = buildString {
+    val duration = Duration.between(startInclusive, endExclusive)
+    when (format) {
+        ChronometerFormat.ShowFlagType.SECOND -> {
+            val years = duration.seconds
+            append("${years.format(locale)}s")
+        }
+
+        ChronometerFormat.ShowFlagType.MINUTE -> {
+            val months = duration.seconds / 60.0
+            append("${months.format(locale)}m")
+        }
+
+        ChronometerFormat.ShowFlagType.HOUR -> {
+            val days = duration.seconds / 60.0 / 60.0
+            append("${days.format(locale)}h")
+        }
+
+        ChronometerFormat.ShowFlagType.DAY -> {
+            val hours = duration.seconds / 60.0 / 60.0 / 24.0
+            append("${hours.format(locale)}d")
+        }
+
+        ChronometerFormat.ShowFlagType.WEEK -> {
+            val minutes = duration.seconds / 60.0 / 60.0 / 24.0 / 30.0 / 4
+            append("${minutes.format(locale)}w")
+        }
+
+        ChronometerFormat.ShowFlagType.MONTH -> {
+            val seconds = duration.seconds / 60.0 / 60.0 / 24.0 / 30.0
+            append("${seconds.format(locale)}m")
+        }
+
+        ChronometerFormat.ShowFlagType.YEAR -> {
+            val seconds = duration.seconds / 60.0 / 60.0 / 24.0 / 30.0 / 365.0
+            append("${seconds.format(locale)}y")
+        }
+    }
+}
+
 val Duration.hoursPart: Int
     get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         toHoursPart()

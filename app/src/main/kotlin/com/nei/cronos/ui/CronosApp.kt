@@ -18,6 +18,8 @@ import com.nei.cronos.core.designsystem.component.drawer.DrawerValue
 import com.nei.cronos.core.designsystem.component.drawer.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.feature.settings.navigation.navigateToSettings
+import com.nei.cronos.feature.settings.navigation.settingsScreen
 import com.nei.cronos.ui.pages.chronometer.navigation.chronometerScreen
 import com.nei.cronos.ui.pages.chronometer.navigation.navigateToChronometer
 import com.nei.cronos.ui.pages.home.navigation.HOME_ROUTE
@@ -35,7 +37,12 @@ fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
     ) {
         homeScreen(
             drawerState = drawerState,
-            onChronometerClick = navController::navigateToChronometer
+            onChronometerClick = navController::navigateToChronometer,
+            onSettingsClick = navController::navigateToSettings
+        )
+
+        settingsScreen(
+            onBackClick = navController::popBackStack
         )
 
         chronometerScreen(

@@ -6,8 +6,18 @@ import androidx.compose.ui.res.stringResource
 import com.nei.cronos.R
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.domain.models.SectionUi
+import cronos.core.model.DarkThemeConfig
+import cronos.core.model.SettingsState
 
 object Mocks {
+
+    val settingsUiStateSuccess: SettingsState
+        @Composable
+        @ReadOnlyComposable
+        get() = SettingsState(
+            darkThemeConfig = DarkThemeConfig.SYSTEM,
+            useDynamicColor = true
+        )
 
     val previewSections
         @Composable

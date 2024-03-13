@@ -2,7 +2,9 @@ package com.nei.cronos.core.designsystem.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -48,4 +50,14 @@ fun CronosTheme(
         typography = Typography,
         content = content
     )
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+@Composable
+fun dynamicColorScheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+): ColorScheme {
+    val context = LocalContext.current
+    return if (darkTheme) dynamicDarkColorScheme(context)
+    else dynamicLightColorScheme(context)
 }

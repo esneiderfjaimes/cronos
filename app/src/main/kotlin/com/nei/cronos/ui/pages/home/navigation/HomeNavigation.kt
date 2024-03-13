@@ -23,6 +23,7 @@ const val HOME_ROUTE = "home"
 fun NavGraphBuilder.homeScreen(
     drawerState: DrawerState,
     onChronometerClick: OnChronometerClick,
+    onSettingsClick: () -> Unit = {},
 ) {
     composable(
         route = HOME_ROUTE,
@@ -49,6 +50,10 @@ fun NavGraphBuilder.homeScreen(
             )
         },
     ) {
-        HomeRoute(drawerState = drawerState, onChronometerClick = onChronometerClick)
+        HomeRoute(
+            drawerState = drawerState,
+            onChronometerClick = onChronometerClick,
+            onSettingsClick = onSettingsClick
+        )
     }
 }

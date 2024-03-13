@@ -42,8 +42,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nei.cronos.R
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
@@ -118,9 +120,8 @@ fun NeiDrawer(
                     .navigationBarsPadding()
             ) {
                 Text(
-                    text = "Made by Nei \uD83C\uDDE8\uD83C\uDDF4",
+                    text = stringResource(R.string.made_by_nei),
                     modifier = Modifier
-                        //.navigationBarsPadding()
                         .then(
                             if (isLandscape) Modifier
                                 .width(DrawerWidth)
