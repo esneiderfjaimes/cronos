@@ -1,9 +1,19 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 
 package com.nei.cronos.feature.settings
 
 import android.os.Build
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -39,7 +49,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -165,12 +177,31 @@ fun ColumnScope.Content(
                     text = stringResource(R.string.use_dynamic_colors),
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(
-                    text = if (useDynamicColor) stringResource(R.string.yes)
-                    else stringResource(R.string.no),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = LocalContentColor.current.copy(alpha = 0.75f)
-                )
+                AnimatedContent(
+                    targetState = useDynamicColor,
+                    label = "use dynamic color label",
+                    transitionSpec = {
+                        val offset = if (initialState >= targetState) 1 else -1
+
+                        val transitionIn = slideInHorizontally(
+                            initialOffsetX = { 50 * offset },
+                            animationSpec = tween()
+                        ) + fadeIn()
+
+                        val transitionOut = slideOutHorizontally(
+                            targetOffsetX = { -50 * offset },
+                            animationSpec = tween()
+                        ) + fadeOut()
+
+                        transitionIn.togetherWith(transitionOut)
+                    }
+                ) {
+                    Text(
+                        text = stringYesOrNo(isYes = it),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                    )
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             Switch(
@@ -215,15 +246,32 @@ fun ColumnScope.Content(
                 text = stringResource(R.string.dark_mode),
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(
-                text = when (darkThemeConfig) {
-                    DarkThemeConfig.OFF -> stringResource(R.string.off)
-                    DarkThemeConfig.ON -> stringResource(R.string.on)
-                    DarkThemeConfig.SYSTEM -> stringResource(R.string.system)
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = LocalContentColor.current.copy(alpha = 0.75f)
-            )
+
+            AnimatedContent(
+                targetState = darkThemeConfig,
+                label = "dark theme label",
+                transitionSpec = {
+                    val offset = if (initialState >= targetState) 1 else -1
+
+                    val transitionIn = slideInVertically(
+                        initialOffsetY = { 50 * offset },
+                        animationSpec = tween()
+                    ) + fadeIn()
+
+                    val transitionOut = slideOutVertically(
+                        targetOffsetY = { -50 * offset },
+                        animationSpec = tween()
+                    ) + fadeOut()
+
+                    transitionIn.togetherWith(transitionOut)
+                }
+            ) {
+                Text(
+                    text = stringDarkThemeConfig(it),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -237,28 +285,33 @@ fun ColumnScope.Content(
     }
     AnimatedVisibility(visible = isExpanded) {
         Column {
-            Item(
-                label = "Off",
-                checked = darkThemeConfig == DarkThemeConfig.OFF
-            ) {
-                updateDarkThemeConfig.invoke(DarkThemeConfig.OFF)
-            }
-
-            Item(
-                label = "On",
-                checked = darkThemeConfig == DarkThemeConfig.ON
-            ) {
-                updateDarkThemeConfig.invoke(DarkThemeConfig.ON)
-            }
-
-            Item(
-                label = "System",
-                checked = darkThemeConfig == DarkThemeConfig.SYSTEM
-            ) {
-                updateDarkThemeConfig.invoke(DarkThemeConfig.SYSTEM)
+            DarkThemeConfig.entries.forEach { entry ->
+                Item(
+                    label = stringDarkThemeConfig(entry),
+                    checked = darkThemeConfig == entry
+                ) {
+                    updateDarkThemeConfig.invoke(entry)
+                }
             }
             HorizontalDivider()
         }
+    }
+}
+
+@Composable
+@ReadOnlyComposable
+fun stringYesOrNo(isYes: Boolean): String {
+    return if (isYes) stringResource(R.string.yes)
+    else stringResource(R.string.no)
+}
+
+@Composable
+@ReadOnlyComposable
+fun stringDarkThemeConfig(darkThemeConfig: DarkThemeConfig): String {
+    return when (darkThemeConfig) {
+        DarkThemeConfig.OFF -> stringResource(id = R.string.off)
+        DarkThemeConfig.ON -> stringResource(id = R.string.on)
+        DarkThemeConfig.SYSTEM -> stringResource(id = R.string.system)
     }
 }
 
@@ -292,7 +345,7 @@ fun Item(
 private fun SettingsScreenPreview() {
     val systemInDarkTheme = isSystemInDarkTheme()
     var darkThemeConfig by remember {
-        mutableStateOf(if (systemInDarkTheme) DarkThemeConfig.ON else DarkThemeConfig.OFF )
+        mutableStateOf(if (systemInDarkTheme) DarkThemeConfig.ON else DarkThemeConfig.OFF)
     }
     var useDynamicColor by remember {
         mutableStateOf(true)
