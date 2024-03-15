@@ -24,11 +24,15 @@ interface LocalRepository {
 
     suspend fun registerEventIn(chronometer: ChronometerEntity, eventType: EventType)
 
+    fun chronometerById(id: Long): Flow<ChronometerEntity?>
+
     fun chronometerWithEventsById(id: Long): Flow<ChronometerWithEvents?>
 
     fun chronometerWithLastEventById(id: Long): Flow<ChronometerWithLastEvent?>
 
     suspend fun updateChronometerIsActive(id: Long, isArchived: Boolean): Result<Int>
+
+    suspend fun updateChronometerLabel(chronometerId: Long, label: String)
 
     // endregion
 }

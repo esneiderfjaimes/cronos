@@ -26,10 +26,14 @@ interface ChronometerDao {
     suspend fun update(chronometer: ChronometerEntity)
 
     @Query("UPDATE chronometers SET is_archived = :isArchived WHERE id = :chronometerId")
-    suspend fun updateIsArchived(chronometerId: Long, isArchived: Boolean) : Int
+    suspend fun updateIsArchived(chronometerId: Long, isArchived: Boolean): Int
 
     @Delete
     suspend fun delete(chronometer: ChronometerEntity)
+
+    @Transaction
+    @Query("SELECT * FROM chronometers WHERE id = :chronometerId")
+    fun chronometerById(chronometerId: Long): Flow<ChronometerEntity?>
 
     @Transaction
     @Query("SELECT * FROM chronometers WHERE id = :chronometerId")
@@ -38,4 +42,7 @@ interface ChronometerDao {
     @Transaction
     @Query("SELECT * FROM chronometers WHERE id = :chronometerId")
     fun chronometerWithLastEventById(chronometerId: Long): Flow<ChronometerWithLastEvent?>
+
+    @Query("UPDATE chronometers SET title = :label WHERE id = :chronometerId")
+    fun updateLabel(chronometerId: Long, label: String)
 }

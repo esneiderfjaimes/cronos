@@ -53,6 +53,10 @@ class LocalRepositoryImpl @Inject constructor(
             chronometerDao.updateIsArchived(id, isArchived)
         }
 
+    override suspend fun updateChronometerLabel(chronometerId: Long, label: String) {
+        executeToResult { chronometerDao.updateLabel(chronometerId, label) }
+    }
+
     // endregion
     // region lap
 
@@ -85,6 +89,10 @@ class LocalRepositoryImpl @Inject constructor(
                 )
             )
         }
+    }
+
+    override fun chronometerById(id: Long): Flow<ChronometerEntity?> {
+        return chronometerDao.chronometerById(id)
     }
     // endregion
 }
