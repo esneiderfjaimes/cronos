@@ -22,6 +22,10 @@ class EditChronometerViewModel @AssistedInject constructor(
     private val _eventChannel = Channel<EditChronometerEvent>()
     val events = _eventChannel.receiveAsFlow()
 
+    init {
+        Log.i(TAG, "init: chronometerId = $chronometerId")
+    }
+
     fun update(label: String) {
         if (job != null) {
             Log.i(TAG, "update: already updating")

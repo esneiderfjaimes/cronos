@@ -2,16 +2,15 @@
 
 package com.nei.cronos.ui.pages.chronometer
 
-import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
@@ -31,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,18 +40,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiIconButton
 import com.nei.cronos.core.designsystem.component.NeiLoading
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.core.designsystem.utils.getLocale
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.feature.editchronometer.EditChronometerDialog
-import com.nei.cronos.feature.editchronometerformat.EditChronometerFormatDialog
-import com.nei.cronos.feature.editchronometerformat.EditChronometerFormatViewModel
+import com.nei.cronos.feature.editchronometerformat.EditFormatDialog
+import com.nei.cronos.ui.pages.chronometer.ChronometerViewModel.Event
+import com.nei.cronos.ui.pages.chronometer.ChronometerViewModel.UiState
+import com.nei.cronos.utils.FlowAsState
 import com.nei.cronos.utils.Mocks
+import com.nei.cronos.utils.differenceParse
+import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 
 @Composable
@@ -61,38 +63,50 @@ fun ChronometerRoute(
     onBackClick: () -> Unit,
     viewModel: ChronometerViewModel = hiltViewModel(),
 ) {
-    val state: ChronometerUiState by viewModel.state.collectAsStateWithLifecycle()
-    val time: String by viewModel.currentTime.collectAsStateWithLifecycle()
-    ChronometerScreen(
-        state = state,
-        timeSection = {
-            ChronometerChip(
-                text = time,
-                modifier = Modifier.padding(16.dp)
-            )
-        },
-        onBackClick = onBackClick,
-        onSaveClick = viewModel::onSaveClick,
-        onNewLapClick = viewModel::onNewLapClick,
-    ) {
-        viewModel.deleteChronometer()
-        onBackClick.invoke()
+    val state: UiState by viewModel.state.collectAsStateWithLifecycle()
+    var showEditAppearance by rememberSaveable { mutableStateOf(false) }
+    var showEditFormat by rememberSaveable { mutableStateOf(false) }
+
+    FlowAsState(flow = viewModel.events) { event ->
+        when (event) {
+            is Event.FinishUpdate -> {
+                showEditFormat = false
+            }
+        }
     }
+
+    ChronometerScreen(
+        onBackClick = onBackClick,
+        showEditAppearance = showEditAppearance,
+        onEditChronometerChange = { showEditAppearance = it },
+        showEditFormat = showEditFormat,
+        onEditFormatChange = { showEditFormat = it },
+        onConfirmationDiscardChanges = viewModel::onConfirmationDiscardChanges,
+        onActionClick = viewModel::addEvent,
+        onConfirmation = viewModel::updateFormat,
+        onUpdate = viewModel::onFormatChange,
+        onDeleteClick = {
+            viewModel.deleteChronometer()
+            onBackClick.invoke()
+        },
+        state = state
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-internal fun ChronometerScreen(
-    state: ChronometerUiState,
-    timeSection: @Composable () -> Unit = { },
-    onBackClick: () -> Unit,
-    onSaveClick: () -> Unit,
-    onNewLapClick: (ChronometerUi, EventType) -> Unit = { _, _ -> },
+private fun ChronometerScreen(
+    onBackClick: () -> Unit = {},
+    showEditAppearance: Boolean = false,
+    onEditChronometerChange: (Boolean) -> Unit = {},
+    showEditFormat: Boolean = false,
+    onEditFormatChange: (Boolean) -> Unit = {},
+    onConfirmationDiscardChanges: () -> Unit = {},
+    onActionClick: (ChronometerUi, EventType) -> Unit = { _, _ -> },
+    onConfirmation: () -> Unit = {},
+    onUpdate: (ChronometerFormat) -> Unit = {},
     onDeleteClick: () -> Unit = {},
+    state: UiState,
 ) {
-    var showEditChronometerDialog by rememberSaveable { mutableStateOf(false) }
-    var showEditChronometerFormatDialog by rememberSaveable { mutableStateOf(false) }
-
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
             title = { Text(text = "Chronometer") },
@@ -103,132 +117,80 @@ internal fun ChronometerScreen(
                         contentDescription = "Back Navigation"
                     )
                 }
-            }, actions = {
-                if (state is ChronometerUiState.Success) {
-                    TextButton(onClick = {
-                        onSaveClick.invoke()
-                        onBackClick.invoke()
-                    }, enabled = state.enabledSaveButton) {
-                        Text(text = "Save")
-                    }
-                }
-            })
+            }
+        )
     }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(
-                    ScrollState(0)
-                ),
+                .verticalScroll(ScrollState(0)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             when (state) {
-                ChronometerUiState.Error -> Text(text = "Error")
-                ChronometerUiState.Loading -> NeiLoading()
-                is ChronometerUiState.Success -> {
-                    timeSection.invoke()
-                    ChronometerBody(
-                        chronometer = state.chronometer,
-                        onEditChronometerClick = {
-                            showEditChronometerDialog = true
-                        },
-                        onEditChronometerFormatClick = {
-                            showEditChronometerFormatDialog = true
-                        }
+                UiState.Error -> Text(text = "Error")
+                UiState.Loading -> NeiLoading()
+                is UiState.Success -> {
+                    Body(
+                        onEditChronometerClick = { onEditChronometerChange.invoke(true) },
+                        onEditFormatClick = { onEditFormatChange.invoke(true) },
+                        onActionClick = onActionClick,
+                        onDeleteClick = onDeleteClick,
+                        state = state
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-                    FlowRow(
-                        modifier = Modifier.padding(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        if (!state.isPaused) {
-                            Column {
-                                NeiIconButton(
-                                    iconVector = Icons.Rounded.Stop,
-                                    contentDescription = "Stop",
-                                    label = { Text("Stop") }
-                                ) {
-                                    onNewLapClick.invoke(state.chronometer, EventType.STOP)
-                                }
-                            }
-                        } else {
-                            NeiIconButton(
-                                iconVector = Icons.Rounded.RestartAlt,
-                                contentDescription = "restart",
-                                label = { Text("Restart") }
-                            ) {
-                                onNewLapClick.invoke(state.chronometer, EventType.RESTART)
-                            }
-                        }
-                        NeiIconButton(
-                            iconVector = Icons.Rounded.Flag,
-                            contentDescription = "New Lap",
-                            label = { Text("New Lap") }
-                        ) {
-                            onNewLapClick.invoke(state.chronometer, EventType.LAP)
-                        }
-                        NeiIconButton(
-                            iconVector = Icons.Rounded.Delete,
-                            contentDescription = "Delete",
-                            label = { Text("Delete") },
-                            onClick = onDeleteClick
-                        )
-                    }
                 }
             }
         }
     }
 
-    if (state is ChronometerUiState.Success) {
-        if (showEditChronometerDialog) {
+    if (state is UiState.Success) {
+        if (showEditAppearance) {
             EditChronometerDialog(
                 chronometerId = state.chronometer.id,
                 title = state.chronometer.title,
-                onOpenBottomSheetChange = { showEditChronometerDialog = it }
+                onDismissRequest = { onEditChronometerChange.invoke(false) }
             )
         }
-        if (showEditChronometerFormatDialog) {
-            val viewModelStoreOwner = LocalViewModelStoreOwner.current
-            val hiltViewModel = hiltViewModel(
-                viewModelStoreOwner!!,
-                creationCallback = { factory: EditChronometerFormatViewModel.Factory ->
-                    factory.create(state.chronometer, state.lastEvent)
-                }
-            )
-            EditChronometerFormatDialog(
+        if (showEditFormat) {
+            EditFormatDialog(
                 chronometer = state.chronometer,
-                lastEvent = state.lastEvent,
-                onOpenBottomSheetChange = {
-                   // val get = viewModelStoreOwner?.viewModelStore?.get("androidx.lifecycle.ViewModelProvider.DefaultKey:com.nei.cronos.feature.editchronometerformat.EditChronometerFormatViewModel")
-
-                    // get?.viewModelScope?.coroutineContext?.cancel(CancellationException("ME LO MAMAN EN REVERAS"))
-                    showEditChronometerFormatDialog = it
-                },
-                viewModel = hiltViewModel
+                format = state.tempFormat,
+                onConfirmationDiscardChanges = onConfirmationDiscardChanges,
+                onDismissRequest = { onEditFormatChange.invoke(false) },
+                startTimeProvider = { state.timeRanges.first },
+                endTimeProvider = { state.timeRanges.second },
+                onConfirmation = onConfirmation,
+                onUpdate = onUpdate
             )
-
-            val joinToString =
-                viewModelStoreOwner?.viewModelStore?.keys()?.joinToString().also {
-                    Log.i("TAG", "ChronometerScreen: $it")
-                }
-            Text(text = joinToString ?: "null")
         }
     }
 }
 
+
 @Composable
-fun ChronometerBody(
-    chronometer: ChronometerUi,
-    onEditChronometerClick: () -> Unit = {},
-    onEditChronometerFormatClick: () -> Unit = {},
+private fun ColumnScope.Body(
+    onEditChronometerClick: () -> Unit,
+    onEditFormatClick: () -> Unit,
+    onActionClick: (ChronometerUi, EventType) -> Unit,
+    onDeleteClick: () -> Unit,
+    state: UiState.Success
 ) {
-    Text(text = chronometer.title)
-    Spacer(modifier = Modifier.height(32.dp))
+    val locale = getLocale()
+
+    ChronometerChip(
+        text = differenceParse(
+            format = state.chronometer.format,
+            locale = locale,
+            startInclusive = state.timeRanges.first,
+            endExclusive = state.timeRanges.second
+        )
+    )
+
+    Text(text = state.chronometer.title)
 
     FlowRow(
+        modifier = Modifier.padding(vertical = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         FilledTonalIconButton(
@@ -239,7 +201,7 @@ fun ChronometerBody(
             Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
         }
         FilledTonalIconButton(
-            onClick = onEditChronometerFormatClick,
+            onClick = onEditFormatClick,
             modifier = Modifier.size(100.dp),
             shape = MaterialTheme.shapes.large
         ) {
@@ -247,7 +209,46 @@ fun ChronometerBody(
         }
     }
 
-    Spacer(modifier = Modifier.height(32.dp))
+    Spacer(modifier = Modifier.weight(1f))
+
+    FlowRow(
+        modifier = Modifier.padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (!state.chronometer.isPaused) {
+            Column {
+                NeiIconButton(
+                    iconVector = Icons.Rounded.Stop,
+                    contentDescription = "Stop",
+                    label = { Text("Stop") }
+                ) {
+                    onActionClick(state.chronometer, EventType.STOP)
+                }
+            }
+        } else {
+            NeiIconButton(
+                iconVector = Icons.Rounded.RestartAlt,
+                contentDescription = "restart",
+                label = { Text("Restart") }
+            ) {
+                onActionClick(state.chronometer, EventType.RESTART)
+            }
+        }
+        NeiIconButton(
+            iconVector = Icons.Rounded.Flag,
+            contentDescription = "New Lap",
+            label = { Text("New Lap") }
+        ) {
+            onActionClick(state.chronometer, EventType.LAP)
+        }
+        NeiIconButton(
+            iconVector = Icons.Rounded.Delete,
+            contentDescription = "Delete",
+            label = { Text("Delete") },
+            onClick = onDeleteClick
+        )
+    }
 }
 
 @ThemePreviews
@@ -256,11 +257,9 @@ private fun ChronometerPreview() {
     CronosTheme {
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
-                state = ChronometerUiState.Success(
+                state = UiState.Success(
                     Mocks.chronometerPreview
                 ),
-                onBackClick = {},
-                onSaveClick = {},
             )
         }
     }
@@ -272,13 +271,10 @@ private fun ChronometerPreviewStop() {
     CronosTheme {
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
-                state = ChronometerUiState.Success(
-                    Mocks.chronometerPreview.copy(
-                        isActive = false
-                    )
+                state = UiState.Success(
+                    Mocks.chronometerPreview.copy(isActive = false)
                 ),
-                onBackClick = {},
-                onSaveClick = {},
+                showEditFormat = true
             )
         }
     }
@@ -290,9 +286,7 @@ private fun ChronometerLoadingPreview() {
     CronosTheme {
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
-                state = ChronometerUiState.Loading,
-                onBackClick = {},
-                onSaveClick = {},
+                state = UiState.Loading,
             )
         }
     }
@@ -304,9 +298,7 @@ private fun ChronometerErrorPreview() {
     CronosTheme {
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
-                state = ChronometerUiState.Error,
-                onBackClick = {},
-                onSaveClick = {},
+                state = UiState.Error,
             )
         }
     }

@@ -42,7 +42,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,61 +55,39 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.core.designsystem.utils.getLocale
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.format.EditFormat
-import com.nei.cronos.utils.FlowAsState
 import com.nei.cronos.utils.Mocks
 import com.nei.cronos.utils.differenceParse
-import cronos.core.database.models.EventEntity
 import cronos.core.model.ChronometerFormat
 import java.time.ZonedDateTime
 
 @Composable
-fun EditChronometerFormatDialog(
+fun EditFormatDialog(
     chronometer: ChronometerUi,
-    lastEvent: EventEntity? = null,
-    onOpenBottomSheetChange: (Boolean) -> Unit = {},
-    viewModel: EditChronometerFormatViewModel = hiltViewModel(
-        key = "EditChronometerViewModel-$chronometer-$lastEvent",
-        creationCallback = { factory: EditChronometerFormatViewModel.Factory ->
-            factory.create(chronometer, lastEvent)
-        }
-    ),
+    format: ChronometerFormat = chronometer.format,
+    onConfirmationDiscardChanges: () -> Unit = {},
+    onDismissRequest: () -> Unit = {},
+    startTimeProvider: () -> ZonedDateTime = { ZonedDateTime.now() },
+    endTimeProvider: () -> ZonedDateTime = { ZonedDateTime.now() },
+    onConfirmation: () -> Unit = {},
+    onUpdate: (ChronometerFormat) -> Unit = {},
 ) {
-    FlowAsState(flow = viewModel.events) { event ->
-        when (event) {
-            is EditChronometerFormatViewModel.Event.FinishUpdate -> {
-                onOpenBottomSheetChange.invoke(false)
-            }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            // Realiza cualquier limpieza necesaria cuando el diálogo se cierra
-            viewModel.onCleared()
-        }
-    }
-
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val hasChanges by remember(state.format, chronometer.format) {
-        derivedStateOf { state.format.toFlags() != chronometer.format.toFlags() }
+    val hasChanges by remember(format, chronometer.format) {
+        derivedStateOf { format.toFlags() != chronometer.format.toFlags() }
     }
 
     var showDialog by rememberSaveable { mutableStateOf(hasChanges) }
 
-    val onDismissRequest = {
+    val onBack = {
         if (hasChanges) {
             showDialog = true
         } else {
-            onOpenBottomSheetChange.invoke(false)
+            onDismissRequest.invoke()
         }
     }
 
@@ -119,7 +96,8 @@ fun EditChronometerFormatDialog(
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 showDialog = false
-                onOpenBottomSheetChange.invoke(false)
+                onDismissRequest.invoke()
+                onConfirmationDiscardChanges.invoke()
             }
         )
     }
@@ -134,10 +112,10 @@ fun EditChronometerFormatDialog(
             .weight(1f)
             .fillMaxWidth()
             .pointerInput({
-                onDismissRequest.invoke()
+                onBack.invoke()
             }) {
                 detectTapGestures {
-                    onDismissRequest.invoke()
+                    onBack.invoke()
                 }
             }
             .clearAndSetSemantics {}
@@ -147,15 +125,16 @@ fun EditChronometerFormatDialog(
 
         CardContent(
             hasChanges = hasChanges,
-            onDismissRequest = onDismissRequest,
-            onConfirmation = viewModel::updateFormat,
-            formatProvider = { state.format },
-            onUpdate = viewModel::onFormatChange,
-            startTimeProvider = { state.timeRanges.first }
-        ) { state.timeRanges.second }
+            onDismissRequest = onBack,
+            onConfirmation = onConfirmation,
+            formatProvider = { format },
+            onUpdate = onUpdate,
+            startTimeProvider = startTimeProvider,
+            endTimeProvider = endTimeProvider
+        )
     }
 
-    BackHandler(onBack = onDismissRequest)
+    BackHandler(onBack = onBack)
 }
 
 @Composable

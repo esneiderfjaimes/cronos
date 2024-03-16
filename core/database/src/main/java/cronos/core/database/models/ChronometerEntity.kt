@@ -39,6 +39,7 @@ data class ChronometerEntity(
     val startDate: ZonedDateTime,
     // mutable, represents last event time
     @ColumnInfo(name = "from_date")
+    @Deprecated("use [lastEvent.time] if null user [startDate]")
     val fromDate: ZonedDateTime,
     @ColumnInfo(name = "format")
     val format: ChronometerFormat = ChronometerFormat.DefaultFormat,

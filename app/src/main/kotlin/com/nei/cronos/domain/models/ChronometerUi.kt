@@ -16,6 +16,7 @@ data class ChronometerUi(
     val startDate: ZonedDateTime = ZonedDateTime.now(ZoneId.systemDefault()),
     val format: ChronometerFormat = ChronometerFormat.DefaultFormat,
     val sectionId: Long = SectionEntity.NONE_SECTION_ID,
+    @Deprecated("Use last event to check if chronometer is [EventType.STOP]")
     val isActive: Boolean = true,
     val isArchived: Boolean = false,
     val lastEvent: EventEntity? = null

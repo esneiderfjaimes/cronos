@@ -1,28 +1,22 @@
 package com.nei.cronos.ui.pages.chronometer
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import com.nei.cronos.core.common.StateEventViewModel
+import com.nei.cronos.core.common.genTimeRange
 import com.nei.cronos.core.database.mappers.toDomain
 import com.nei.cronos.core.database.mappers.toUi
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
-import com.nei.cronos.utils.differenceParse
 import com.nei.cronos.utils.launchIO
 import cronos.core.data.repository.LocalRepository
 import cronos.core.database.embeddeds.ChronometerWithLastEvent
-import cronos.core.database.models.EventEntity
 import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.util.Timer
@@ -33,26 +27,19 @@ import kotlin.concurrent.fixedRateTimer
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class ChronometerViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle,
     private val localRepository: LocalRepository
-) : ViewModel() {
-    private val currentLocale = context.resources.configuration.locales[0]
-
+) : StateEventViewModel<ChronometerViewModel.UiState, ChronometerViewModel.Event>(UiState.Loading) {
     private val args: ChronometerArgs = ChronometerArgs(savedStateHandle)
 
-    private val _state = MutableStateFlow<ChronometerUiState>(ChronometerUiState.Loading)
-    val state: StateFlow<ChronometerUiState> = _state
-
-    private val _currentTime = MutableStateFlow("❤️‍🔥")
-    val currentTime: StateFlow<String> = _currentTime
-
+    private var job: Job? = null
     private var timer: Timer? = null
 
     init {
         launchIO {
             localRepository.chronometerWithLastEventById(args.chronometerId).catch {
                 Log.e(TAG, "collect(${args.chronometerId}): catch:", it)
+                _state.value = UiState.Error
             }.collect(this@ChronometerViewModel::collector)
         }
     }
@@ -60,18 +47,20 @@ class ChronometerViewModel @Inject constructor(
     private fun collector(query: ChronometerWithLastEvent?) {
         Log.d(TAG, "collect: $query")
         if (query == null) {
-            _state.value = ChronometerUiState.Error
+            _state.value = UiState.Error
             return
         }
 
-        val newState = ChronometerUiState.Success(
-            chronometer = query.chronometer.toUi(),
-            lastEvent = query.lastEvent
+        val chronometerUi = query.toUi()
+        val newState = UiState.Success(
+            chronometer = chronometerUi, // update chronometer
+            tempFormat = chronometerUi.format, // reset tempFormat when chronometer is changed
+            timeRanges = genTimeRange(chronometerUi) // update timeRanges
         )
 
         updateLabel(newState)
 
-        if (newState.isPaused) {
+        if (chronometerUi.isPaused) {
             timer?.cancel()
         } else {
             startTimer()
@@ -101,66 +90,32 @@ class ChronometerViewModel @Inject constructor(
         timer?.cancel()
     }
 
-    private suspend fun forceUpdateLabelTimer() {
-        withContext(Dispatchers.IO) {
-            val uiState = _state.value
-            if (uiState is ChronometerUiState.Success) {
-                updateLabel(uiState)
-            }
+    private fun forceUpdateLabelTimer() {
+        val uiState = _state.value
+        if (uiState is UiState.Success) {
+            updateLabel(uiState)
         }
     }
 
-    private fun updateLabel(uiState: ChronometerUiState.Success) {
-        val chronometer = uiState.chronometer
-        val lastEvent = uiState.lastEvent
-
-        // TODO: missing zone in ZonedDateTime now constructor
-        val (start, end) = when {
-            lastEvent == null -> chronometer.startDate to ZonedDateTime.now()
-            uiState.isPaused -> chronometer.startDate to lastEvent.time
-            else -> lastEvent.time to ZonedDateTime.now()
-        }
-
-        _currentTime.value = differenceParse(
-            format = chronometer.format,
-            locale = currentLocale,
-            startInclusive = start,
-            endExclusive = end
+    private fun updateLabel(uiState: UiState.Success) {
+        _state.value = uiState.copy(
+            timeRanges = genTimeRange(chronometer = uiState.chronometer)
         )
     }
 
-    fun updateFormat(format: ChronometerFormat) {
+    fun onFormatChange(format: ChronometerFormat) {
         launchIO {
-            val uiState = _state.value
-            if (uiState is ChronometerUiState.Success) {
+            updateIfSuccess {
                 if (format.isAllFlagsDisabled) {
-                    _state.value = uiState.copy(
-                        chronometer = uiState.chronometer.copy(
-                            format = format.copy(showSecond = true)
-                        )
-                    )
+                    copy(tempFormat = format.copy(showSecond = true))
                 } else {
-                    _state.value = uiState.copy(
-                        chronometer = uiState.chronometer.copy(format = format)
-                    )
-                }
-                forceUpdateLabelTimer()
+                    copy(tempFormat = format)
+                }.also { forceUpdateLabelTimer() }
             }
         }
     }
 
-    fun onSaveClick() {
-        launchIO {
-            val uiState = _state.value
-            if (uiState is ChronometerUiState.Success) {
-                if (uiState.enabledSaveButton) {
-                    localRepository.updateChronometer(uiState.chronometer.toDomain())
-                }
-            }
-        }
-    }
-
-    fun onNewLapClick(chronometer: ChronometerUi, eventType: EventType) {
+    fun addEvent(chronometer: ChronometerUi, eventType: EventType) {
         launchIO {
             localRepository.registerEventIn(chronometer.toDomain(), eventType = eventType)
         }
@@ -171,32 +126,65 @@ class ChronometerViewModel @Inject constructor(
             localRepository.updateChronometerIsActive(
                 id = args.chronometerId,
                 isArchived = true
-            ).also {
-                Log.i(TAG, "deleteChronometer: $it")
+            ).also { Log.i(TAG, "deleteChronometer: $it") }
+        }
+    }
+
+    fun updateFormat() {
+        if (job != null) {
+            Log.i(TAG, "update: already updating")
+            return
+        }
+        val uiState = _state.value
+        if (uiState is UiState.Success) {
+            job = launchIO {
+                localRepository.updateChronometerFormat(uiState.chronometer.id, uiState.tempFormat)
+            }.also {
+                it.invokeOnCompletion {
+                    job = null
+                    launchIO {
+                        _eventChannel.send(Event.FinishUpdate)
+                    }
+                }
             }
+        }
+    }
+
+    fun onConfirmationDiscardChanges() {
+        updateIfSuccess { copy(tempFormat = chronometer.format) }
+    }
+
+    private fun updateIfSuccess(function: UiState.Success.() -> UiState.Success) {
+        val uiState = _state.value
+        if (uiState is UiState.Success) {
+            updateState { uiState.function() }
         }
     }
 
     companion object {
         const val TAG = "ChronometerViewModel"
     }
-}
 
-sealed interface ChronometerUiState {
+    sealed interface UiState {
+        data class Success(
+            val chronometer: ChronometerUi,
+            val tempFormat: ChronometerFormat,
+            val timeRanges: Pair<ZonedDateTime, ZonedDateTime>
+        ) : UiState {
+            constructor(
+                chronometer: ChronometerUi,
+            ) : this(
+                chronometer = chronometer,
+                tempFormat = chronometer.format,
+                timeRanges = genTimeRange(chronometer)
+            )
+        }
 
-    data class Success(
-        val chronometer: ChronometerUi,
-        val lastEvent: EventEntity? = null,
-        private val previousFormat: ChronometerFormat = chronometer.format,
-    ) : ChronometerUiState {
-        val enabledSaveButton: Boolean =
-            (previousFormat != chronometer.format && !chronometer.format.isAllFlagsDisabled)
-
-        val isPaused: Boolean =
-            (!chronometer.isActive && lastEvent?.type == EventType.STOP)
+        data object Error : UiState
+        data object Loading : UiState
     }
 
-    data object Error : ChronometerUiState
-    data object Loading : ChronometerUiState
+    sealed interface Event {
+        data object FinishUpdate : Event
+    }
 }
-

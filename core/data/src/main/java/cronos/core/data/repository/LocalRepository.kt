@@ -21,8 +21,6 @@ interface LocalRepository {
 
     suspend fun insertChronometer(vararg chronometer: ChronometerEntity)
 
-    suspend fun updateChronometer(chronometer: ChronometerEntity)
-
     suspend fun registerEventIn(chronometer: ChronometerEntity, eventType: EventType)
 
     fun chronometerById(id: Long): Flow<ChronometerEntity?>

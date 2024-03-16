@@ -12,7 +12,6 @@ import cronos.core.database.models.SectionEntity
 import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class LocalRepositoryImpl @Inject constructor(
@@ -36,10 +35,6 @@ class LocalRepositoryImpl @Inject constructor(
     }
 
     override fun chronometers() = chronometerDao.chronometers()
-
-    override suspend fun updateChronometer(chronometer: ChronometerEntity) {
-        executeToResult { chronometerDao.update(chronometer) }
-    }
 
     override fun chronometerWithEventsById(id: Long): Flow<ChronometerWithEvents?> {
         return chronometerDao.chronometerWithEventsById(id)
@@ -83,16 +78,8 @@ class LocalRepositoryImpl @Inject constructor(
                 EventType.LAP -> chronometer.isActive
             }
 
-            val fromDate = if (eventType == EventType.LAP) ZonedDateTime.now()
-            else chronometer.fromDate
-
             // reset fromDate to now
-            chronometerDao.update(
-                chronometer.copy(
-                    fromDate = fromDate,
-                    isActive = isActive
-                )
-            )
+            chronometerDao.updateIsActive(chronometer.id, isActive)
         }
     }
 

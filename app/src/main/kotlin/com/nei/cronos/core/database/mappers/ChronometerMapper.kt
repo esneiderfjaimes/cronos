@@ -2,6 +2,7 @@ package com.nei.cronos.core.database.mappers
 
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.domain.models.SectionUi
+import cronos.core.database.embeddeds.ChronometerWithLastEvent
 import cronos.core.database.models.ChronometerEntity
 import cronos.core.database.models.EventEntity
 import cronos.core.database.models.SectionEntity
@@ -9,7 +10,11 @@ import cronos.core.database.views.ChronometerWithLastEventView
 import cronos.core.database.views.SectionView
 import cronos.core.database.views.SectionWithChronometers
 
-fun ChronometerEntity.toUi() = ChronometerUi(
+fun ChronometerWithLastEvent.toUi() = chronometer.toUi(lastEvent)
+
+fun ChronometerEntity.toUi(
+    lastEvent: EventEntity?
+) = ChronometerUi(
     id = id,
     title = title,
     createdAt = createdAt,
@@ -17,7 +22,8 @@ fun ChronometerEntity.toUi() = ChronometerUi(
     format = format,
     sectionId = sectionId,
     isActive = isActive,
-    isArchived = isArchived
+    isArchived = isArchived,
+    lastEvent = lastEvent
 )
 
 fun ChronometerUi.toDomain() = ChronometerEntity(

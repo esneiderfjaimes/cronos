@@ -67,7 +67,7 @@ import kotlinx.coroutines.delay
 fun EditChronometerDialog(
     chronometerId: Long = 0L,
     title: String,
-    onOpenBottomSheetChange: (Boolean) -> Unit = {},
+    onDismissRequest: (Boolean) -> Unit = {},
     viewModel: EditChronometerViewModel = hiltViewModel(
         creationCallback = { factory: EditChronometerViewModel.Factory ->
             factory.create(chronometerId)
@@ -77,7 +77,7 @@ fun EditChronometerDialog(
     FlowAsState(flow = viewModel.events) { event ->
         when (event) {
             is EditChronometerEvent.FinishUpdate -> {
-                onOpenBottomSheetChange.invoke(false)
+                onDismissRequest.invoke(false)
             }
         }
     }
@@ -97,11 +97,11 @@ fun EditChronometerDialog(
 
     var showDialog by rememberSaveable { mutableStateOf(hasChanges) }
 
-    val onDismissRequest = {
+    val onBack = {
         if (hasChanges) {
             showDialog = true
         } else {
-            onOpenBottomSheetChange.invoke(false)
+            onDismissRequest.invoke(false)
         }
     }
 
@@ -116,7 +116,7 @@ fun EditChronometerDialog(
         AlertDiscardChanges(
             onDismissRequest = { showDialog = false },
             onConfirmation = {
-                onOpenBottomSheetChange.invoke(false)
+                onDismissRequest.invoke(false)
             }
         )
     }
@@ -130,10 +130,10 @@ fun EditChronometerDialog(
             .weight(1f)
             .fillMaxWidth()
             .pointerInput({
-                onDismissRequest.invoke()
+                onBack.invoke()
             }) {
                 detectTapGestures {
-                    onDismissRequest.invoke()
+                    onBack.invoke()
                 }
             }
             .clearAndSetSemantics {}
@@ -151,7 +151,7 @@ fun EditChronometerDialog(
                     label = label,
                     onLabelChange = { label = it },
                     hasChanges = hasChanges,
-                    onBackClick = onDismissRequest,
+                    onBackClick = onBack,
                     onSaveClick = { viewModel.update(it) }
                 )
                 Spacer(
@@ -169,7 +169,7 @@ fun EditChronometerDialog(
         }
     }
 
-    BackHandler(onBack = onDismissRequest)
+    BackHandler(onBack = onBack)
 }
 
 
