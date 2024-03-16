@@ -34,7 +34,7 @@ import java.time.ZonedDateTime
 fun ChronometerChipRunning(
     time: ZonedDateTime,
     modifier: Modifier = Modifier,
-    format: cronos.core.model.ChronometerFormat = cronos.core.model.ChronometerFormat(),
+    format: ChronometerFormat = ChronometerFormat(),
 ) {
     val locale = getLocale()
     var label by rememberSaveable(time, format, locale) {
@@ -82,7 +82,7 @@ fun ChronometerChipPreview() {
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         (0..255).forEach {
-            val format = cronos.core.model.ChronometerFormat.fromFlags(it)
+            val format = ChronometerFormat.fromFlags(it)
             ChronometerChip(time.differenceParse(format, locale))
         }
     }

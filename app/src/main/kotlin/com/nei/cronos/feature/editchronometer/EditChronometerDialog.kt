@@ -105,6 +105,13 @@ fun EditChronometerDialog(
         }
     }
 
+    // focus requester
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        delay(250)
+        focusRequester.requestFocus()
+    }
+
     if (showDialog) {
         AlertDiscardChanges(
             onDismissRequest = { showDialog = false },
@@ -140,6 +147,7 @@ fun EditChronometerDialog(
         ) {
             Column {
                 EditChronometerContent(
+                    focusRequester = focusRequester,
                     label = label,
                     onLabelChange = { label = it },
                     hasChanges = hasChanges,
@@ -207,14 +215,8 @@ private fun EditChronometerContent(
     hasChanges: Boolean = false,
     onBackClick: () -> Unit = {},
     onSaveClick: (String) -> Unit = {},
+    focusRequester: FocusRequester = FocusRequester(),
 ) {
-    // focus requester
-    val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        delay(250)
-        focusRequester.requestFocus()
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

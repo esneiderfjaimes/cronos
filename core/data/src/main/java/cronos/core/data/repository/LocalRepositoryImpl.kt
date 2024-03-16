@@ -9,6 +9,7 @@ import cronos.core.database.embeddeds.ChronometerWithLastEvent
 import cronos.core.database.models.ChronometerEntity
 import cronos.core.database.models.EventEntity
 import cronos.core.database.models.SectionEntity
+import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime
@@ -55,6 +56,10 @@ class LocalRepositoryImpl @Inject constructor(
 
     override suspend fun updateChronometerLabel(chronometerId: Long, label: String) {
         executeToResult { chronometerDao.updateLabel(chronometerId, label) }
+    }
+
+    override suspend fun updateChronometerFormat(chronometerId: Long, format: ChronometerFormat) {
+        executeToResult { chronometerDao.updateFormat(chronometerId, format) }
     }
 
     // endregion

@@ -1,7 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 
 package com.nei.cronos.ui.pages.chronometer
 
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Circle
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Flag
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiIconButton
@@ -48,9 +51,9 @@ import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.feature.editchronometer.EditChronometerDialog
-import com.nei.cronos.ui.pages.format.EditFormat
+import com.nei.cronos.feature.editchronometerformat.EditChronometerFormatDialog
+import com.nei.cronos.feature.editchronometerformat.EditChronometerFormatViewModel
 import com.nei.cronos.utils.Mocks
-import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 
 @Composable
@@ -71,12 +74,10 @@ fun ChronometerRoute(
         onBackClick = onBackClick,
         onSaveClick = viewModel::onSaveClick,
         onNewLapClick = viewModel::onNewLapClick,
-        updateFormat = viewModel::updateFormat,
-        onDeleteClick = {
-            viewModel.deleteChronometer()
-            onBackClick.invoke()
-        },
-    )
+    ) {
+        viewModel.deleteChronometer()
+        onBackClick.invoke()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -87,10 +88,10 @@ internal fun ChronometerScreen(
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     onNewLapClick: (ChronometerUi, EventType) -> Unit = { _, _ -> },
-    updateFormat: (ChronometerFormat) -> Unit = {},
     onDeleteClick: () -> Unit = {},
 ) {
     var showEditChronometerDialog by rememberSaveable { mutableStateOf(false) }
+    var showEditChronometerFormatDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
@@ -133,7 +134,9 @@ internal fun ChronometerScreen(
                         onEditChronometerClick = {
                             showEditChronometerDialog = true
                         },
-                        updateFormat = updateFormat
+                        onEditChronometerFormatClick = {
+                            showEditChronometerFormatDialog = true
+                        }
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     FlowRow(
@@ -187,6 +190,32 @@ internal fun ChronometerScreen(
                 onOpenBottomSheetChange = { showEditChronometerDialog = it }
             )
         }
+        if (showEditChronometerFormatDialog) {
+            val viewModelStoreOwner = LocalViewModelStoreOwner.current
+            val hiltViewModel = hiltViewModel(
+                viewModelStoreOwner!!,
+                creationCallback = { factory: EditChronometerFormatViewModel.Factory ->
+                    factory.create(state.chronometer, state.lastEvent)
+                }
+            )
+            EditChronometerFormatDialog(
+                chronometer = state.chronometer,
+                lastEvent = state.lastEvent,
+                onOpenBottomSheetChange = {
+                   // val get = viewModelStoreOwner?.viewModelStore?.get("androidx.lifecycle.ViewModelProvider.DefaultKey:com.nei.cronos.feature.editchronometerformat.EditChronometerFormatViewModel")
+
+                    // get?.viewModelScope?.coroutineContext?.cancel(CancellationException("ME LO MAMAN EN REVERAS"))
+                    showEditChronometerFormatDialog = it
+                },
+                viewModel = hiltViewModel
+            )
+
+            val joinToString =
+                viewModelStoreOwner?.viewModelStore?.keys()?.joinToString().also {
+                    Log.i("TAG", "ChronometerScreen: $it")
+                }
+            Text(text = joinToString ?: "null")
+        }
     }
 }
 
@@ -194,28 +223,31 @@ internal fun ChronometerScreen(
 fun ChronometerBody(
     chronometer: ChronometerUi,
     onEditChronometerClick: () -> Unit = {},
-    updateFormat: (ChronometerFormat) -> Unit = {},
+    onEditChronometerFormatClick: () -> Unit = {},
 ) {
     Text(text = chronometer.title)
     Spacer(modifier = Modifier.height(32.dp))
-    FilledTonalIconButton(
-        onClick = onEditChronometerClick,
-        modifier = Modifier.size(64.dp),
-        shape = MaterialTheme.shapes.large
+
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+        FilledTonalIconButton(
+            onClick = onEditChronometerClick,
+            modifier = Modifier.size(100.dp),
+            shape = MaterialTheme.shapes.large
+        ) {
+            Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+        }
+        FilledTonalIconButton(
+            onClick = onEditChronometerFormatClick,
+            modifier = Modifier.size(100.dp),
+            shape = MaterialTheme.shapes.large
+        ) {
+            Icon(imageVector = Icons.Rounded.Circle, contentDescription = null)
+        }
     }
 
     Spacer(modifier = Modifier.height(32.dp))
-    Text(text = "Format", style = MaterialTheme.typography.titleMedium)
-    EditFormat(
-        formatProvider = { chronometer.format },
-        onUpdate = {
-            updateFormat.invoke(it)
-        },
-        modifier = Modifier
-            .padding(horizontal = 16.dp),
-    )
 }
 
 @ThemePreviews

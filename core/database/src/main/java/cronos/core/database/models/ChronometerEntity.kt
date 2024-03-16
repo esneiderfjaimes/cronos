@@ -80,7 +80,7 @@ data class ChronometerEntity(
                         put("created_at", timeConverter.timeToString(createdAt))
                         put("start_date", timeConverter.timeToString(startDate))
                         put("from_date", timeConverter.timeToString(fromDate))
-                        put("format", formatConverter.formatToString(format))
+                        put("format", formatConverter.formatToInt(format))
                         put("section_id", sectionId)
                         put("is_active", isActive)
                         put("is_archived", isArchived)

@@ -5,13 +5,13 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import cronos.core.data.repository.LocalRepository
 import com.nei.cronos.core.database.mappers.toDomain
 import com.nei.cronos.core.database.mappers.toUi
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.chronometer.navigation.ChronometerArgs
 import com.nei.cronos.utils.differenceParse
 import com.nei.cronos.utils.launchIO
+import cronos.core.data.repository.LocalRepository
 import cronos.core.database.embeddeds.ChronometerWithLastEvent
 import cronos.core.database.models.EventEntity
 import cronos.core.model.ChronometerFormat
@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.Timer
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -111,27 +112,21 @@ class ChronometerViewModel @Inject constructor(
 
     private fun updateLabel(uiState: ChronometerUiState.Success) {
         val chronometer = uiState.chronometer
-        val last = uiState.lastEvent
-        _currentTime.value = if (last != null) {
-            if (uiState.isPaused) {
-                differenceParse(
-                    chronometer.format,
-                    currentLocale,
-                    chronometer.startDate,
-                    last.time
-                )
-            } else {
-                last.time.differenceParse(
-                    chronometer.format,
-                    currentLocale
-                )
-            }
-        } else {
-            chronometer.startDate.differenceParse(
-                chronometer.format,
-                currentLocale
-            )
+        val lastEvent = uiState.lastEvent
+
+        // TODO: missing zone in ZonedDateTime now constructor
+        val (start, end) = when {
+            lastEvent == null -> chronometer.startDate to ZonedDateTime.now()
+            uiState.isPaused -> chronometer.startDate to lastEvent.time
+            else -> lastEvent.time to ZonedDateTime.now()
         }
+
+        _currentTime.value = differenceParse(
+            format = chronometer.format,
+            locale = currentLocale,
+            startInclusive = start,
+            endExclusive = end
+        )
     }
 
     fun updateFormat(format: ChronometerFormat) {

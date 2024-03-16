@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -211,7 +212,7 @@ private fun LazyListScope.sectionContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val locale = getLocale()
-                val label by rememberSaveable(chronometer.startDate, chronometer.format, locale) {
+                val label by remember(chronometer.startDate, chronometer.format, locale) {
                     mutableStateOf(
                         differenceParse(
                             chronometer.format,
@@ -223,7 +224,7 @@ private fun LazyListScope.sectionContent(
                 }
                 ChronometerChip(text = label, modifier = Modifier)
                 Text(
-                    text = label,
+                    text = chronometer.title,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium
                 )

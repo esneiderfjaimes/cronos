@@ -6,9 +6,10 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import cronos.core.database.models.ChronometerEntity
 import cronos.core.database.embeddeds.ChronometerWithEvents
 import cronos.core.database.embeddeds.ChronometerWithLastEvent
+import cronos.core.database.models.ChronometerEntity
+import cronos.core.model.ChronometerFormat
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -45,4 +46,7 @@ interface ChronometerDao {
 
     @Query("UPDATE chronometers SET title = :label WHERE id = :chronometerId")
     fun updateLabel(chronometerId: Long, label: String)
+
+    @Query("UPDATE chronometers SET format = :format WHERE id = :chronometerId")
+    fun updateFormat(chronometerId: Long, format: ChronometerFormat)
 }

@@ -2,8 +2,8 @@ package com.nei.cronos.domain.models
 
 import androidx.compose.runtime.Stable
 import cronos.core.database.models.EventEntity
-import cronos.core.model.ChronometerFormat
 import cronos.core.database.models.SectionEntity
+import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -21,5 +21,5 @@ data class ChronometerUi(
     val lastEvent: EventEntity? = null
 ) {
     val isPaused: Boolean =
-        (lastEvent?.type == EventType.STOP)
+        (!isActive && lastEvent?.type == EventType.STOP)
 }

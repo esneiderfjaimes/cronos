@@ -18,7 +18,7 @@ fun differenceParse(
     format: ChronometerFormat,
     locale: Locale,
     startInclusive: ZonedDateTime,
-    endExclusive: ZonedDateTime
+    endExclusive: ZonedDateTime = ZonedDateTime.now(),
 ) = buildString {
     var duration = Duration.between(startInclusive, endExclusive)
 

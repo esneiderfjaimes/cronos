@@ -4,6 +4,7 @@ import cronos.core.database.embeddeds.ChronometerWithEvents
 import cronos.core.database.embeddeds.ChronometerWithLastEvent
 import cronos.core.database.models.ChronometerEntity
 import cronos.core.database.models.SectionEntity
+import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 import kotlinx.coroutines.flow.Flow
 
@@ -33,6 +34,8 @@ interface LocalRepository {
     suspend fun updateChronometerIsActive(id: Long, isArchived: Boolean): Result<Int>
 
     suspend fun updateChronometerLabel(chronometerId: Long, label: String)
+
+    suspend fun updateChronometerFormat(chronometerId: Long, format: ChronometerFormat)
 
     // endregion
 }
