@@ -3,16 +3,15 @@
 package com.nei.cronos.ui.pages.chronometer
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,24 +35,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.CronosBackground
-import com.nei.cronos.core.designsystem.component.NeiIconButton
 import com.nei.cronos.core.designsystem.component.NeiLoading
+import com.nei.cronos.core.designsystem.component.button.TonalIconButton
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.core.designsystem.utils.getLocale
-import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.feature.editchronometer.EditChronometerDialog
 import com.nei.cronos.feature.editchronometerformat.EditFormatDialog
 import com.nei.cronos.ui.pages.chronometer.ChronometerViewModel.Event
 import com.nei.cronos.ui.pages.chronometer.ChronometerViewModel.UiState
 import com.nei.cronos.utils.FlowAsState
 import com.nei.cronos.utils.Mocks
-import com.nei.cronos.utils.differenceParse
 import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 
@@ -82,7 +78,9 @@ fun ChronometerRoute(
         showEditFormat = showEditFormat,
         onEditFormatChange = { showEditFormat = it },
         onConfirmationDiscardChanges = viewModel::onConfirmationDiscardChanges,
-        onActionClick = viewModel::addEvent,
+        onStopClick = { viewModel.addEvent(EventType.STOP) },
+        onRestartClick = { viewModel.addEvent(EventType.RESTART) },
+        onNewLapClick = { viewModel.addEvent(EventType.LAP) },
         onConfirmation = viewModel::updateFormat,
         onUpdate = viewModel::onFormatChange,
         onDeleteClick = {
@@ -101,7 +99,9 @@ private fun ChronometerScreen(
     showEditFormat: Boolean = false,
     onEditFormatChange: (Boolean) -> Unit = {},
     onConfirmationDiscardChanges: () -> Unit = {},
-    onActionClick: (ChronometerUi, EventType) -> Unit = { _, _ -> },
+    onStopClick: () -> Unit = {},
+    onRestartClick: () -> Unit = {},
+    onNewLapClick: () -> Unit = {},
     onConfirmation: () -> Unit = {},
     onUpdate: (ChronometerFormat) -> Unit = {},
     onDeleteClick: () -> Unit = {},
@@ -126,7 +126,6 @@ private fun ChronometerScreen(
                 .padding(paddingValues)
                 .verticalScroll(ScrollState(0)),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
             when (state) {
                 UiState.Error -> Text(text = "Error")
@@ -135,8 +134,10 @@ private fun ChronometerScreen(
                     Body(
                         onEditChronometerClick = { onEditChronometerChange.invoke(true) },
                         onEditFormatClick = { onEditFormatChange.invoke(true) },
-                        onActionClick = onActionClick,
-                        onDeleteClick = onDeleteClick,
+                        onDeleteClick = { onDeleteClick.invoke() },
+                        onStopClick = onStopClick,
+                        onRestartClick = onRestartClick,
+                        onNewLapClick = onNewLapClick,
                         state = state
                     )
                 }
@@ -167,87 +168,108 @@ private fun ChronometerScreen(
     }
 }
 
-
 @Composable
-private fun ColumnScope.Body(
+private fun Body(
     onEditChronometerClick: () -> Unit,
     onEditFormatClick: () -> Unit,
-    onActionClick: (ChronometerUi, EventType) -> Unit,
     onDeleteClick: () -> Unit,
+    onStopClick: () -> Unit,
+    onRestartClick: () -> Unit,
+    onNewLapClick: () -> Unit,
     state: UiState.Success
 ) {
     val locale = getLocale()
 
-    ChronometerChip(
-        text = differenceParse(
-            format = state.chronometer.format,
-            locale = locale,
-            startInclusive = state.timeRanges.first,
-            endExclusive = state.timeRanges.second
-        )
-    )
+    /*    ChronometerChip(
+            text = differenceParse(
+                format = state.chronometer.format,
+                locale = locale,
+                startInclusive = state.timeRanges.first,
+                endExclusive = state.timeRanges.second
+            ),
+            modifier = Modifier.padding(32.dp),
+        )*/
 
     Text(text = state.chronometer.title)
 
+    Cosmetics(
+        isPaused = state.chronometer.isPaused,
+        onEditChronometerClick = onEditChronometerClick,
+        onEditFormatClick = onEditFormatClick,
+        onDeleteClick = { onDeleteClick.invoke() },
+        onStopClick = onStopClick,
+        onRestartClick = onRestartClick,
+        onNewLapClick = onNewLapClick
+    )
+}
+
+
+@Composable
+fun Cosmetics(
+    isPaused: Boolean,
+    onEditChronometerClick: () -> Unit,
+    onEditFormatClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onStopClick: () -> Unit,
+    onRestartClick: () -> Unit,
+    onNewLapClick: () -> Unit,
+) {
     FlowRow(
-        modifier = Modifier.padding(vertical = 32.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier
+            .padding(vertical = 32.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        FilledTonalIconButton(
+        TonalIconButton(
             onClick = onEditChronometerClick,
-            modifier = Modifier.size(100.dp),
-            shape = MaterialTheme.shapes.large
+            label = "Edit",
         ) {
             Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
         }
-        FilledTonalIconButton(
+        TonalIconButton(
             onClick = onEditFormatClick,
-            modifier = Modifier.size(100.dp),
-            shape = MaterialTheme.shapes.large
+            label = "Format",
         ) {
             Icon(imageVector = Icons.Rounded.Circle, contentDescription = null)
         }
-    }
+/*        TonalIconButton(
+            onClick = { onDeleteClick.invoke() },
+            label = "Delete",
+        ) {
+            Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
+        }*/
 
-    Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "Actions",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .padding(4.dp),
+            textAlign = TextAlign.Center
+        )
 
-    FlowRow(
-        modifier = Modifier.padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (!state.chronometer.isPaused) {
-            Column {
-                NeiIconButton(
-                    iconVector = Icons.Rounded.Stop,
-                    contentDescription = "Stop",
-                    label = { Text("Stop") }
-                ) {
-                    onActionClick(state.chronometer, EventType.STOP)
-                }
+/*        if (!isPaused) {
+            TonalIconButton(
+                onClick = { onStopClick.invoke() },
+                label = "Stop",
+            ) {
+                Icon(imageVector = Icons.Rounded.Stop, contentDescription = null)
             }
         } else {
-            NeiIconButton(
-                iconVector = Icons.Rounded.RestartAlt,
-                contentDescription = "restart",
-                label = { Text("Restart") }
+            TonalIconButton(
+                onClick = { onRestartClick.invoke() },
+                label = "Restart",
             ) {
-                onActionClick(state.chronometer, EventType.RESTART)
+                Icon(imageVector = Icons.Rounded.RestartAlt, contentDescription = null)
             }
         }
-        NeiIconButton(
-            iconVector = Icons.Rounded.Flag,
-            contentDescription = "New Lap",
-            label = { Text("New Lap") }
+        TonalIconButton(
+            onClick = { onNewLapClick.invoke() },
+            label = "New Lap",
         ) {
-            onActionClick(state.chronometer, EventType.LAP)
-        }
-        NeiIconButton(
-            iconVector = Icons.Rounded.Delete,
-            contentDescription = "Delete",
-            label = { Text("Delete") },
-            onClick = onDeleteClick
-        )
+            Icon(imageVector = Icons.Rounded.Flag, contentDescription = null)
+        }*/
     }
 }
 

@@ -115,9 +115,11 @@ class ChronometerViewModel @Inject constructor(
         }
     }
 
-    fun addEvent(chronometer: ChronometerUi, eventType: EventType) {
+    fun addEvent(eventType: EventType) {
         launchIO {
-            localRepository.registerEventIn(chronometer.toDomain(), eventType = eventType)
+            val uiState = _state.value
+            if (uiState !is UiState.Success) return@launchIO
+            localRepository.registerEventIn(uiState.chronometer.toDomain(), eventType = eventType)
         }
     }
 
