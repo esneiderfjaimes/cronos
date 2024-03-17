@@ -58,13 +58,10 @@ import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
-import com.nei.cronos.core.designsystem.utils.getLocale
 import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.ui.pages.format.EditFormat
 import com.nei.cronos.utils.Mocks
-import com.nei.cronos.utils.differenceParse
 import cronos.core.model.ChronometerFormat
-import java.time.ZonedDateTime
 
 @Composable
 fun EditFormatDialog(
@@ -72,8 +69,7 @@ fun EditFormatDialog(
     format: ChronometerFormat = chronometer.format,
     onConfirmationDiscardChanges: () -> Unit = {},
     onDismissRequest: () -> Unit = {},
-    startTimeProvider: () -> ZonedDateTime = { ZonedDateTime.now() },
-    endTimeProvider: () -> ZonedDateTime = { ZonedDateTime.now() },
+    timeProvider: (ChronometerFormat) -> String = { "" },
     onConfirmation: () -> Unit = {},
     onUpdate: (ChronometerFormat) -> Unit = {},
 ) {
@@ -129,8 +125,7 @@ fun EditFormatDialog(
             onConfirmation = onConfirmation,
             formatProvider = { format },
             onUpdate = onUpdate,
-            startTimeProvider = startTimeProvider,
-            endTimeProvider = endTimeProvider
+            timeProvider = timeProvider
         )
     }
 
@@ -179,11 +174,8 @@ private fun ColumnScope.CardContent(
     onConfirmation: () -> Unit = {},
     formatProvider: () -> ChronometerFormat,
     onUpdate: (ChronometerFormat) -> Unit,
-    startTimeProvider: () -> ZonedDateTime = { ZonedDateTime.now() },
-    endTimeProvider: () -> ZonedDateTime = { ZonedDateTime.now() },
+    timeProvider: (ChronometerFormat) -> String = { "" },
 ) {
-    val locale = getLocale()
-
     Surface(
         shape = RoundedCornerShape(24.dp, 24.dp, 0.dp, 0.dp),
         modifier = Modifier
@@ -222,12 +214,7 @@ private fun ColumnScope.CardContent(
                     }
                 }
                 ChronometerChip(
-                    text = differenceParse(
-                        format = formatProvider.invoke(),
-                        locale = locale,
-                        startInclusive = startTimeProvider.invoke(),
-                        endExclusive = endTimeProvider.invoke()
-                    )
+                    text = timeProvider.invoke(formatProvider.invoke())
                 )
             }
 

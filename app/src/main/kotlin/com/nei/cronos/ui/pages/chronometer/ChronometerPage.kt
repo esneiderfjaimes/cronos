@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiLoading
 import com.nei.cronos.core.designsystem.component.button.TonalIconButton
@@ -51,6 +52,7 @@ import com.nei.cronos.ui.pages.chronometer.ChronometerViewModel.Event
 import com.nei.cronos.ui.pages.chronometer.ChronometerViewModel.UiState
 import com.nei.cronos.utils.FlowAsState
 import com.nei.cronos.utils.Mocks
+import com.nei.cronos.utils.differenceParse
 import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 
@@ -59,7 +61,10 @@ fun ChronometerRoute(
     onBackClick: () -> Unit,
     viewModel: ChronometerViewModel = hiltViewModel(),
 ) {
-    val state: UiState by viewModel.state.collectAsStateWithLifecycle()
+    val locale = getLocale()
+    val scrollState = rememberScrollState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val rangesState by viewModel.rangesState.collectAsStateWithLifecycle()
     var showEditAppearance by rememberSaveable { mutableStateOf(false) }
     var showEditFormat by rememberSaveable { mutableStateOf(false) }
 
@@ -72,6 +77,15 @@ fun ChronometerRoute(
     }
 
     ChronometerScreen(
+        labelProvider = { it: ChronometerFormat ->
+            differenceParse(
+                format = it,
+                locale = locale,
+                startInclusive = rangesState.first,
+                endExclusive = rangesState.second
+            )
+        },
+        scrollState = scrollState,
         onBackClick = onBackClick,
         showEditAppearance = showEditAppearance,
         onEditChronometerChange = { showEditAppearance = it },
@@ -93,6 +107,7 @@ fun ChronometerRoute(
 
 @Composable
 private fun ChronometerScreen(
+    labelProvider: (ChronometerFormat) -> String = { "" },
     onBackClick: () -> Unit = {},
     showEditAppearance: Boolean = false,
     onEditChronometerChange: (Boolean) -> Unit = {},
@@ -106,6 +121,7 @@ private fun ChronometerScreen(
     onUpdate: (ChronometerFormat) -> Unit = {},
     onDeleteClick: () -> Unit = {},
     state: UiState,
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
@@ -124,13 +140,17 @@ private fun ChronometerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(ScrollState(0)),
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (state) {
                 UiState.Error -> Text(text = "Error")
                 UiState.Loading -> NeiLoading()
                 is UiState.Success -> {
+                    ChronometerChip(
+                        text = labelProvider.invoke(state.chronometer.format),
+                        modifier = Modifier.padding(32.dp),
+                    )
                     Body(
                         onEditChronometerClick = { onEditChronometerChange.invoke(true) },
                         onEditFormatClick = { onEditFormatChange.invoke(true) },
@@ -159,8 +179,7 @@ private fun ChronometerScreen(
                 format = state.tempFormat,
                 onConfirmationDiscardChanges = onConfirmationDiscardChanges,
                 onDismissRequest = { onEditFormatChange.invoke(false) },
-                startTimeProvider = { state.timeRanges.first },
-                endTimeProvider = { state.timeRanges.second },
+                timeProvider = labelProvider,
                 onConfirmation = onConfirmation,
                 onUpdate = onUpdate
             )
@@ -178,20 +197,7 @@ private fun Body(
     onNewLapClick: () -> Unit,
     state: UiState.Success
 ) {
-    val locale = getLocale()
-
-    /*    ChronometerChip(
-            text = differenceParse(
-                format = state.chronometer.format,
-                locale = locale,
-                startInclusive = state.timeRanges.first,
-                endExclusive = state.timeRanges.second
-            ),
-            modifier = Modifier.padding(32.dp),
-        )*/
-
     Text(text = state.chronometer.title)
-
     Cosmetics(
         isPaused = state.chronometer.isPaused,
         onEditChronometerClick = onEditChronometerClick,
@@ -232,12 +238,12 @@ fun Cosmetics(
         ) {
             Icon(imageVector = Icons.Rounded.Circle, contentDescription = null)
         }
-/*        TonalIconButton(
+        TonalIconButton(
             onClick = { onDeleteClick.invoke() },
             label = "Delete",
         ) {
             Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
-        }*/
+        }
 
         Text(
             text = "Actions",
@@ -249,7 +255,7 @@ fun Cosmetics(
             textAlign = TextAlign.Center
         )
 
-/*        if (!isPaused) {
+        if (!isPaused) {
             TonalIconButton(
                 onClick = { onStopClick.invoke() },
                 label = "Stop",
@@ -269,7 +275,7 @@ fun Cosmetics(
             label = "New Lap",
         ) {
             Icon(imageVector = Icons.Rounded.Flag, contentDescription = null)
-        }*/
+        }
     }
 }
 
@@ -293,10 +299,10 @@ private fun ChronometerPreviewStop() {
     CronosTheme {
         CronosBackground(modifier = Modifier.fillMaxWidth()) {
             ChronometerScreen(
+                showEditFormat = true,
                 state = UiState.Success(
                     Mocks.chronometerPreview.copy(isActive = false)
                 ),
-                showEditFormat = true
             )
         }
     }

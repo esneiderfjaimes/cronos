@@ -16,6 +16,8 @@ import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -31,6 +33,11 @@ class ChronometerViewModel @Inject constructor(
     private val localRepository: LocalRepository
 ) : StateEventViewModel<ChronometerViewModel.UiState, ChronometerViewModel.Event>(UiState.Loading) {
     private val args: ChronometerArgs = ChronometerArgs(savedStateHandle)
+
+    private val _rangesState = MutableStateFlow<Pair<ZonedDateTime, ZonedDateTime>>(
+        Pair(ZonedDateTime.now(), ZonedDateTime.now())
+    )
+    val rangesState get() = _rangesState.asStateFlow()
 
     private var job: Job? = null
     private var timer: Timer? = null
@@ -55,7 +62,6 @@ class ChronometerViewModel @Inject constructor(
         val newState = UiState.Success(
             chronometer = chronometerUi, // update chronometer
             tempFormat = chronometerUi.format, // reset tempFormat when chronometer is changed
-            timeRanges = genTimeRange(chronometerUi) // update timeRanges
         )
 
         updateLabel(newState)
@@ -98,9 +104,7 @@ class ChronometerViewModel @Inject constructor(
     }
 
     private fun updateLabel(uiState: UiState.Success) {
-        _state.value = uiState.copy(
-            timeRanges = genTimeRange(chronometer = uiState.chronometer)
-        )
+        _rangesState.value = genTimeRange(chronometer = uiState.chronometer)
     }
 
     fun onFormatChange(format: ChronometerFormat) {
@@ -171,14 +175,12 @@ class ChronometerViewModel @Inject constructor(
         data class Success(
             val chronometer: ChronometerUi,
             val tempFormat: ChronometerFormat,
-            val timeRanges: Pair<ZonedDateTime, ZonedDateTime>
         ) : UiState {
             constructor(
                 chronometer: ChronometerUi,
             ) : this(
                 chronometer = chronometer,
                 tempFormat = chronometer.format,
-                timeRanges = genTimeRange(chronometer)
             )
         }
 
