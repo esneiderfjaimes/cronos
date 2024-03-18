@@ -1,4 +1,18 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Last Time</string>
     <string name="first_chronometer_title">since I\'ve been using the app</string>
+
+    <!-- About -->
+    <string name="made_by_nei">made by nei with 🥑</string>
+
+    <!-- Settings -->
+    <string name="title_settings_screen">Settings</string>
+    <string name="use_dynamic_colors">Use dynamic colors</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="off" tools:override="true">Off</string>
+    <string name="on" tools:override="true">On</string>
+    <string name="system">System</string>
 </resources>

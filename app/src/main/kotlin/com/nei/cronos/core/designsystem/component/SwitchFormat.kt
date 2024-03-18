@@ -35,7 +35,8 @@ fun SwitchFormat(text: String, checked: Boolean, onCheckedChange: (Boolean) -> U
             .semantics(mergeDescendants = true) {
                 this.contentDescription = "Switch $text"
                 this.role = Role.Switch
-            }.minimumInteractiveComponentSize(),
+            }
+            .minimumInteractiveComponentSize(),
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 1.dp,
         border = if (checked) BorderStroke(2.dp, color) else null,

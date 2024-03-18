@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
@@ -48,6 +49,47 @@ fun TextField(
         cursorBrush = colors.brush,
     ) { innerTextField ->
         val showPlaceholder by remember(value) { derivedStateOf { value.isEmpty() } }
+
+        // placeholder
+        AnimatedVisibility(
+            visible = showPlaceholder,
+            enter = fadeIn(),
+            exit = ExitTransition.None
+        ) {
+            CompositionLocalProvider(
+                LocalTextStyle provides textStyle,
+                LocalContentColor provides colors.focusedPlaceholderColor.copy(0.75f),
+                content = placeholder
+            )
+        }
+        innerTextField.invoke()
+    }
+}
+
+@Composable
+fun TextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    placeholder: @Composable () -> Unit = {},
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    colors: TextFieldColors = TextFieldDefaults.colors(),
+) {
+    BasicTextFieldFoundation(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier
+            .sizeIn(maxWidth = 488.dp)
+            .fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        textStyle = textStyle.copy(color = colors.focusedTextColor),
+        cursorBrush = colors.brush,
+    ) { innerTextField ->
+        val showPlaceholder by remember(value) { derivedStateOf { value.text.isEmpty() } }
 
         // placeholder
         AnimatedVisibility(

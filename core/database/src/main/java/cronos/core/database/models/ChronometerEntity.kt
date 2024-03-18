@@ -36,10 +36,11 @@ data class ChronometerEntity(
     @ColumnInfo(name = "created_at")
     val createdAt: ZonedDateTime,
     @ColumnInfo(name = "start_date")
+    @Deprecated("same [created_at] field")
     val startDate: ZonedDateTime,
     // mutable, represents last event time
-    @ColumnInfo(name = "from_date")
-    val fromDate: ZonedDateTime,
+    @ColumnInfo(name = "last_time_running")
+    val lastTimeRunning: ZonedDateTime,
     @ColumnInfo(name = "format")
     val format: ChronometerFormat = ChronometerFormat.DefaultFormat,
     @ColumnInfo(name = "section_id")
@@ -59,7 +60,7 @@ data class ChronometerEntity(
     ) : this(
         title = title,
         createdAt = ZonedDateTime.now(ZoneId.systemDefault()),
-        fromDate = allDateTime,
+        lastTimeRunning = allDateTime,
         startDate = allDateTime,
         format = format,
         sectionId = sectionId,
@@ -79,8 +80,8 @@ data class ChronometerEntity(
                         put("title", title)
                         put("created_at", timeConverter.timeToString(createdAt))
                         put("start_date", timeConverter.timeToString(startDate))
-                        put("from_date", timeConverter.timeToString(fromDate))
-                        put("format", formatConverter.formatToString(format))
+                        put("last_time_running", timeConverter.timeToString(lastTimeRunning))
+                        put("format", formatConverter.formatToInt(format))
                         put("section_id", sectionId)
                         put("is_active", isActive)
                         put("is_archived", isArchived)

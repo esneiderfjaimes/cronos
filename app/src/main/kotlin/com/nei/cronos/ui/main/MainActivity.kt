@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.nei.cronos.core.datastore.presentation.LocalSettingsState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.ui.CronosApp
+import cronos.core.model.DarkThemeConfig
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -29,7 +32,6 @@ class MainActivity : ComponentActivity() {
 
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
-
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
@@ -55,13 +57,16 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val darkTheme = shouldUseDarkTheme(uiState)
+
             if (uiState is MainUiState.Success) {
                 val success = uiState as MainUiState.Success
                 CompositionLocalProvider(
                     LocalSettingsState provides success.settingsState
                 ) {
                     CronosTheme(
-                        dynamicColor = true
+                        darkTheme = darkTheme,
+                        dynamicColor = shouldUseDynamicTheming(uiState)
                     ) {
                         CronosApp()
                     }
@@ -69,4 +74,32 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+/**
+ * Returns `true` if dark theme should be used, as a function of the [uiState] and the
+ * current system context.
+ */
+@Composable
+private fun shouldUseDarkTheme(
+    uiState: MainUiState,
+): Boolean = when (uiState) {
+    MainUiState.Loading -> isSystemInDarkTheme()
+    is MainUiState.Success -> when (uiState.settingsState.darkThemeConfig) {
+        DarkThemeConfig.SYSTEM -> isSystemInDarkTheme()
+        DarkThemeConfig.OFF -> false
+        DarkThemeConfig.ON -> true
+    }
+}
+
+
+/**
+ * Returns `true` if the dynamic color is disabled, as a function of the [uiState].
+ */
+@Composable
+private fun shouldUseDynamicTheming(
+    uiState: MainUiState,
+): Boolean = when (uiState) {
+    MainUiState.Loading -> true
+    is MainUiState.Success -> uiState.settingsState.useDynamicColor
 }

@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CronosDrawerContent(
-    drawerState: DrawerState = rememberDrawerState()
+    drawerState: DrawerState = rememberDrawerState(),
+    onSettingsClick: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     NavigationDrawerItem(
@@ -40,9 +41,14 @@ fun CronosDrawerContent(
         selected = true,
     ) { scope.launch { drawerState.animateTo(DrawerValue.Hide) } }
     NavigationDrawerItem(
-        imageVector = Icons.Rounded.Favorite,
-        label = "In construction. \uD83D\uDEA7"
-    ) { scope.launch { drawerState.animateTo(DrawerValue.Hide) } }
+        imageVector = Icons.Rounded.Settings,
+        label = "Settings",
+    ) {
+        scope.launch {
+            onSettingsClick.invoke()
+            drawerState.animateTo(DrawerValue.Hide)
+        }
+    }
 }
 
 @Composable

@@ -1,9 +1,10 @@
 @file:OptIn(
-    ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class, ExperimentalFoundationApi::class,
 )
 
 package com.nei.cronos.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,24 +19,31 @@ import com.nei.cronos.core.designsystem.component.drawer.DrawerValue
 import com.nei.cronos.core.designsystem.component.drawer.rememberDrawerState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import com.nei.cronos.feature.settings.navigation.navigateToSettings
+import com.nei.cronos.feature.settings.navigation.settingsScreen
 import com.nei.cronos.ui.pages.chronometer.navigation.chronometerScreen
 import com.nei.cronos.ui.pages.chronometer.navigation.navigateToChronometer
 import com.nei.cronos.ui.pages.home.navigation.HOME_ROUTE
 import com.nei.cronos.ui.pages.home.navigation.homeScreen
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun CronosApp(drawerState: DrawerState = rememberDrawerState()) {
     val navController = rememberNavController()
-
     NavHost(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
         navController = navController, startDestination = HOME_ROUTE,
         enterTransition = { EnterTransition.None },
-        exitTransition = { ExitTransition.None },
+        exitTransition = { ExitTransition.None }
     ) {
         homeScreen(
             drawerState = drawerState,
-            onChronometerClick = navController::navigateToChronometer
+            onChronometerClick = navController::navigateToChronometer,
+            onSettingsClick = navController::navigateToSettings
+        )
+
+        settingsScreen(
+            onBackClick = navController::popBackStack
         )
 
         chronometerScreen(

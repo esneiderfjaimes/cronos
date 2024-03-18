@@ -1,11 +1,6 @@
 package com.nei.cronos.core.designsystem.utils
 
-import android.content.res.Configuration
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 
 /**
  * Multi-preview annotation that represents light and dark themes. Add this annotation to a

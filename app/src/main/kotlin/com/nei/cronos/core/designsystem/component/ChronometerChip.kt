@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.utils.getLocale
 import com.nei.cronos.utils.differenceParse
+import cronos.core.model.ChronometerFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -34,7 +34,7 @@ import java.time.ZonedDateTime
 fun ChronometerChipRunning(
     time: ZonedDateTime,
     modifier: Modifier = Modifier,
-    format: cronos.core.model.ChronometerFormat = cronos.core.model.ChronometerFormat(),
+    format: ChronometerFormat = ChronometerFormat(),
 ) {
     val locale = getLocale()
     var label by rememberSaveable(time, format, locale) {
@@ -82,7 +82,7 @@ fun ChronometerChipPreview() {
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         (0..255).forEach {
-            val format = cronos.core.model.ChronometerFormat.fromFlags(it)
+            val format = ChronometerFormat.fromFlags(it)
             ChronometerChip(time.differenceParse(format, locale))
         }
     }

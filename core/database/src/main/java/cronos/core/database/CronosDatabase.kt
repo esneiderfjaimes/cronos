@@ -2,6 +2,7 @@ package cronos.core.database
 
 import android.content.Context
 import android.util.Log
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -23,12 +24,19 @@ import cronos.core.database.views.LastEventRefView
 import cronos.core.database.views.SectionView
 
 @Database(
-    version = 2,
+    version = 3,
     entities = [SectionEntity::class, ChronometerEntity::class, EventEntity::class],
     views = [
         SectionView::class,
         ChronometerWithLastEventView::class,
         LastEventRefView::class,
+    ],
+    autoMigrations = [
+        AutoMigration(
+            from = 2,
+            to = 3,
+            spec = DatabaseMigrations.Schema2to3::class
+        )
     ],
     exportSchema = true,
 )
@@ -78,4 +86,6 @@ abstract class CronosDatabase : RoomDatabase() {
 
         private const val TAG = "CronosDatabase"
     }
+
+
 }

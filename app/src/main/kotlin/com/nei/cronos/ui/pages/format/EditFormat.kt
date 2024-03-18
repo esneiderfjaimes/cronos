@@ -17,12 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.component.ChronometerFlag
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.SwitchFormat
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
+import cronos.core.model.ChronometerFormat
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
