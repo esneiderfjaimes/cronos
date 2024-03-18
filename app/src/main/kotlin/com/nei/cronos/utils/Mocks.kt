@@ -8,6 +8,7 @@ import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.domain.models.SectionUi
 import cronos.core.model.DarkThemeConfig
 import cronos.core.model.SettingsState
+import java.time.ZonedDateTime
 
 object Mocks {
 
@@ -36,8 +37,13 @@ object Mocks {
     val chronometerPreview: ChronometerUi
         @Composable
         @ReadOnlyComposable
-        get() = ChronometerUi(
-            title = stringResource(R.string.first_chronometer_title)
-        )
+        get() = ZonedDateTime.now().let { time ->
+            ChronometerUi(
+                title = stringResource(R.string.first_chronometer_title),
+                createdAt = time,
+                startDate = time,
+                lastTimeRunning = time,
+            )
+        }
 
 }

@@ -41,7 +41,9 @@ fun TonalIconButton(
     ) {
         Surface(
             onClick = onClick,
-            modifier = modifier.semantics { role = Role.Button }.padding(bottom = 8.dp),
+            modifier = modifier
+                .semantics { role = Role.Button }
+                .padding(bottom = 8.dp),
             shape = shape,
             // color = MaterialTheme.colorScheme.secondaryContainer,
             tonalElevation = 1.dp,

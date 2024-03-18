@@ -7,7 +7,6 @@ import cronos.core.database.dao.SectionDao
 import cronos.core.database.embeddeds.ChronometerWithEvents
 import cronos.core.database.embeddeds.ChronometerWithLastEvent
 import cronos.core.database.models.ChronometerEntity
-import cronos.core.database.models.EventEntity
 import cronos.core.database.models.SectionEntity
 import cronos.core.model.ChronometerFormat
 import cronos.core.model.EventType
@@ -64,22 +63,12 @@ class LocalRepositoryImpl @Inject constructor(
         chronometer: ChronometerEntity,
         eventType: EventType
     ) {
-        executeToResult {  // create new lap
-            lapsDao.insert(
-                EventEntity(
-                    chronometerId = chronometer.id,
-                    type = eventType
-                )
+        executeToResult {
+            chronometerDao.registerEventIn(
+                lapsDao,
+                chronometer,
+                eventType
             )
-
-            val isActive = when (eventType) {
-                EventType.STOP -> false
-                EventType.RESTART -> true
-                EventType.LAP -> chronometer.isActive
-            }
-
-            // reset fromDate to now
-            chronometerDao.updateIsActive(chronometer.id, isActive)
         }
     }
 

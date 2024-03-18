@@ -30,17 +30,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -56,6 +51,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nei.cronos.core.designsystem.component.ChronometerChip
+import com.nei.cronos.core.designsystem.dialog.BaseAlertDialog
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.domain.models.ChronometerUi
@@ -88,7 +84,10 @@ fun EditFormatDialog(
     }
 
     if (showDialog) {
-        AlertDiscardChanges(
+        BaseAlertDialog(
+            title = "Discard your changes?",
+            text = "You have unsaved changes. Are you sure you want to discard them?",
+            confirmButtonText = "Discard",
             onDismissRequest = { showDialog = false },
             onConfirmation = {
                 showDialog = false
@@ -130,41 +129,6 @@ fun EditFormatDialog(
     }
 
     BackHandler(onBack = onBack)
-}
-
-@Composable
-fun AlertDiscardChanges(
-    onDismissRequest: () -> Unit = {},
-    onConfirmation: () -> Unit = {},
-) {
-    AlertDialog(
-        icon = {
-            Icon(Icons.Rounded.Warning, contentDescription = "Example Icon")
-        },
-        title = {
-            Text(text = "Discard your changes?")
-        },
-        text = {
-            Text(text = "You have unsaved changes. Are you sure you want to discard them?")
-        },
-        onDismissRequest = onDismissRequest,
-        confirmButton = {
-            FilledTonalButton(
-                onClick = onConfirmation,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                )
-            ) {
-                Text("Discard")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 @Composable
@@ -248,7 +212,6 @@ private fun ColumnScope.CardContent(
 fun EditChronometerPreview() {
     val chronometerLast = Mocks.chronometerPreview
     val lastFormat = chronometerLast.format
-    val chronometer by remember { mutableStateOf(chronometerLast) }
     var format by remember { mutableStateOf(lastFormat) }
     val hasChanges by remember(format, lastFormat) {
         derivedStateOf { format.toFlags() != lastFormat.toFlags() }
@@ -267,13 +230,5 @@ fun EditChronometerPreview() {
                 onUpdate = { format = it },
             )
         }
-    }
-}
-
-@Composable
-@ThemePreviews
-private fun AlertDiscardChangesPreview() {
-    CronosTheme {
-        AlertDiscardChanges()
     }
 }

@@ -15,6 +15,7 @@ import java.time.ZonedDateTime
             "c.title as c_title, " +
             "c.created_at as c_created_at, " +
             "c.start_date as c_start_date, " +
+            "c.last_time_running as c_last_time_running, " +
             "c.format as c_format, " +
             "c.section_id as c_section_id, " +
             "c.is_active as c_is_active, " +
@@ -38,6 +39,8 @@ data class ChronometerWithLastEventView(
     val createdAt: ZonedDateTime,
     @ColumnInfo(name = "c_start_date")
     val startDate: ZonedDateTime,
+    @ColumnInfo(name = "c_last_time_running")
+    val lastTimeRunning: ZonedDateTime,
     @ColumnInfo(name = "c_format")
     val format: ChronometerFormat = ChronometerFormat.DefaultFormat,
     @ColumnInfo(name = "c_section_id")

@@ -2,23 +2,29 @@
 
 package com.nei.cronos.ui.pages.chronometer
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Circle
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.rounded.PauseCircleOutline
 import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -43,6 +49,8 @@ import com.nei.cronos.core.designsystem.component.ChronometerChip
 import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.component.NeiLoading
 import com.nei.cronos.core.designsystem.component.button.TonalIconButton
+import com.nei.cronos.core.designsystem.dialog.BaseAlertDialog
+import com.nei.cronos.core.designsystem.icons.TwoDots
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.core.designsystem.utils.getLocale
@@ -67,6 +75,7 @@ fun ChronometerRoute(
     val rangesState by viewModel.rangesState.collectAsStateWithLifecycle()
     var showEditAppearance by rememberSaveable { mutableStateOf(false) }
     var showEditFormat by rememberSaveable { mutableStateOf(false) }
+    var showAlertDelete by rememberSaveable { mutableStateOf(false) }
 
     FlowAsState(flow = viewModel.events) { event ->
         when (event) {
@@ -91,6 +100,8 @@ fun ChronometerRoute(
         onEditChronometerChange = { showEditAppearance = it },
         showEditFormat = showEditFormat,
         onEditFormatChange = { showEditFormat = it },
+        showAlertDelete = showAlertDelete,
+        onAlertDeleteChange = { showAlertDelete = it },
         onConfirmationDiscardChanges = viewModel::onConfirmationDiscardChanges,
         onStopClick = { viewModel.addEvent(EventType.STOP) },
         onRestartClick = { viewModel.addEvent(EventType.RESTART) },
@@ -107,12 +118,14 @@ fun ChronometerRoute(
 
 @Composable
 private fun ChronometerScreen(
-    labelProvider: (ChronometerFormat) -> String = { "" },
+    labelProvider: (ChronometerFormat) -> String = { "00:00" },
     onBackClick: () -> Unit = {},
     showEditAppearance: Boolean = false,
     onEditChronometerChange: (Boolean) -> Unit = {},
     showEditFormat: Boolean = false,
     onEditFormatChange: (Boolean) -> Unit = {},
+    showAlertDelete: Boolean = false,
+    onAlertDeleteChange: (Boolean) -> Unit = {},
     onConfirmationDiscardChanges: () -> Unit = {},
     onStopClick: () -> Unit = {},
     onRestartClick: () -> Unit = {},
@@ -147,14 +160,39 @@ private fun ChronometerScreen(
                 UiState.Error -> Text(text = "Error")
                 UiState.Loading -> NeiLoading()
                 is UiState.Success -> {
-                    ChronometerChip(
-                        text = labelProvider.invoke(state.chronometer.format),
-                        modifier = Modifier.padding(32.dp),
-                    )
+                    Box {
+                        ChronometerChip(
+                            text = labelProvider.invoke(state.chronometer.format),
+                            modifier = Modifier.padding(32.dp),
+                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(end = 32.dp - 12.dp, top = 32.dp - 12.dp)
+                        ) {
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = state.chronometer.isPaused,
+                                label = "icon_animation2",
+                                enter = scaleIn(),
+                                exit = scaleOut()
+                            ) {
+                                Icon(
+                                    Icons.Rounded.PauseCircleOutline,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .background(
+                                            color = MaterialTheme.colorScheme.primaryContainer,
+                                            shape = CircleShape
+                                        ),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
                     Body(
                         onEditChronometerClick = { onEditChronometerChange.invoke(true) },
                         onEditFormatClick = { onEditFormatChange.invoke(true) },
-                        onDeleteClick = { onDeleteClick.invoke() },
+                        onDeleteClick = { onAlertDeleteChange.invoke(true) },
                         onStopClick = onStopClick,
                         onRestartClick = onRestartClick,
                         onNewLapClick = onNewLapClick,
@@ -182,6 +220,18 @@ private fun ChronometerScreen(
                 timeProvider = labelProvider,
                 onConfirmation = onConfirmation,
                 onUpdate = onUpdate
+            )
+        }
+        if (showAlertDelete) {
+            BaseAlertDialog(
+                title = "Delete chronometer?",
+                text = "Are you sure you want to delete this chronometer?",
+                confirmButtonText = "Delete",
+                onDismissRequest = { onAlertDeleteChange.invoke(false) },
+                onConfirmation = {
+                    onDeleteClick.invoke()
+                    onAlertDeleteChange.invoke(false)
+                },
             )
         }
     }
@@ -230,19 +280,29 @@ fun Cosmetics(
             onClick = onEditChronometerClick,
             label = "Edit",
         ) {
-            Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+            Icon(
+                imageVector = Icons.Rounded.Edit, contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
         }
         TonalIconButton(
             onClick = onEditFormatClick,
             label = "Format",
         ) {
-            Icon(imageVector = Icons.Rounded.Circle, contentDescription = null)
+            Icon(
+                imageVector = Icons.Rounded.TwoDots, contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
         }
         TonalIconButton(
             onClick = { onDeleteClick.invoke() },
             label = "Delete",
         ) {
-            Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
+            Icon(
+                imageVector = Icons.Rounded.Delete,
+                contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
         }
 
         Text(
@@ -254,27 +314,32 @@ fun Cosmetics(
                 .padding(4.dp),
             textAlign = TextAlign.Center
         )
-
-        if (!isPaused) {
-            TonalIconButton(
-                onClick = { onStopClick.invoke() },
-                label = "Stop",
-            ) {
-                Icon(imageVector = Icons.Rounded.Stop, contentDescription = null)
-            }
-        } else {
-            TonalIconButton(
-                onClick = { onRestartClick.invoke() },
-                label = "Restart",
-            ) {
-                Icon(imageVector = Icons.Rounded.RestartAlt, contentDescription = null)
+        TonalIconButton(
+            onClick = {
+                if (isPaused) {
+                    onRestartClick.invoke()
+                } else {
+                    onStopClick.invoke()
+                }
+            },
+            label = if (isPaused) "Restart" else "Stop",
+        ) {
+            Crossfade(targetState = isPaused, label = "stop/restart_animation") {
+                Icon(
+                    imageVector = if (it) Icons.Rounded.RestartAlt else Icons.Rounded.Stop,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp)
+                )
             }
         }
         TonalIconButton(
             onClick = { onNewLapClick.invoke() },
             label = "New Lap",
         ) {
-            Icon(imageVector = Icons.Rounded.Flag, contentDescription = null)
+            Icon(
+                imageVector = Icons.Rounded.Flag, contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
         }
     }
 }

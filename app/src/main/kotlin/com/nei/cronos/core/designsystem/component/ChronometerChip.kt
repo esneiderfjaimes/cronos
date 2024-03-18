@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import cronos.core.model.ChronometerFormat
 import com.nei.cronos.core.designsystem.utils.getLocale
 import com.nei.cronos.utils.differenceParse
+import cronos.core.model.ChronometerFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
