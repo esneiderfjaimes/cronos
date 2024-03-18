@@ -18,6 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,6 +65,23 @@ fun ChronometerChip(text: String, modifier: Modifier = Modifier) {
             .padding(8.dp)
             .animateContentSize(),
         color = MaterialTheme.colorScheme.onPrimary,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Medium
+    )
+}
+
+@Composable
+fun ChronometerChip(text: String, brush: Brush) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .background(
+                brush = brush,
+                shape = RoundedCornerShape(25)
+            )
+            .padding(8.dp)
+            .animateContentSize(),
+        color = Color.Black,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Medium
     )
