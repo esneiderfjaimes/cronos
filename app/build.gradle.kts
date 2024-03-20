@@ -36,6 +36,7 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 
     composeOptions {
@@ -64,6 +65,12 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
+
+    // For AppWidgets support
+    implementation("androidx.glance:glance-appwidget:1.0.0")
+
+    // For interop APIs with Material 3
+    implementation("androidx.glance:glance-material3:1.0.0")
 
     // Compose
     implementation(platform(libs.compose.bom))

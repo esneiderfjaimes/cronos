@@ -15,4 +15,9 @@
     <string name="off" tools:override="true">Off</string>
     <string name="on" tools:override="true">On</string>
     <string name="system">System</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="title_activity_setup_widget">SetupWidgetActivity</string>
 </resources>

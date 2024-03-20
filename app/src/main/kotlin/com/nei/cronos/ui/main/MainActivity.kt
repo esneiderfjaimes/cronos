@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
  * current system context.
  */
 @Composable
-private fun shouldUseDarkTheme(
+fun shouldUseDarkTheme(
     uiState: MainUiState,
 ): Boolean = when (uiState) {
     MainUiState.Loading -> isSystemInDarkTheme()
@@ -97,7 +97,7 @@ private fun shouldUseDarkTheme(
  * Returns `true` if the dynamic color is disabled, as a function of the [uiState].
  */
 @Composable
-private fun shouldUseDynamicTheming(
+fun shouldUseDynamicTheming(
     uiState: MainUiState,
 ): Boolean = when (uiState) {
     MainUiState.Loading -> true
