@@ -13,17 +13,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.nei.cronos.core.datastore.presentation.LocalSettingsState
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.ui.CronosApp
+import com.nei.cronos.ui.widget.CounterWidget
 import cronos.core.model.DarkThemeConfig
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -34,6 +37,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // update widget
+        lifecycleScope.launch {
+            CounterWidget().updateAll(this@MainActivity)
+        }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 

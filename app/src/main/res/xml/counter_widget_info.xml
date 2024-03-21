@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/app_name"
+    android:configure="com.nei.cronos.feature.widget.configuration.ChronometerWidgetConfigureActivity"
+    android:description="@string/glace_app_widget_description"
+    android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="50dp"
     android:minHeight="50dp"
+    android:previewImage="@mipmap/ic_launcher"
     android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1000"
     android:widgetCategory="home_screen"
-    />
+    android:widgetFeatures="reconfigurable" />

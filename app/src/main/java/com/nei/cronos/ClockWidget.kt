@@ -9,7 +9,7 @@ import android.widget.RemoteViews
  * Implementation of App Widget functionality.
  * App Widget Configuration implemented in [ClockWidgetConfigureActivity]
  */
-class ClockWidget : AppWidgetProvider() {
+/*class ClockWidget : AppWidgetProvider() {
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -35,8 +35,9 @@ class ClockWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
     }
-}
+}*/
 
+/*
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
@@ -49,4 +50,4 @@ internal fun updateAppWidget(
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
-}
+}*/

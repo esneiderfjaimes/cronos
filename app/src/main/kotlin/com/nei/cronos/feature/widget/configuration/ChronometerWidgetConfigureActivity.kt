@@ -2,7 +2,6 @@
 
 package com.nei.cronos.feature.widget.configuration
 
-import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -46,6 +45,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import androidx.glance.GlanceId
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -57,14 +59,17 @@ import com.nei.cronos.core.designsystem.component.CronosBackground
 import com.nei.cronos.core.designsystem.theme.CronosTheme
 import com.nei.cronos.core.designsystem.utils.ThemePreviews
 import com.nei.cronos.core.designsystem.utils.getLocale
+import com.nei.cronos.domain.models.ChronometerUi
 import com.nei.cronos.domain.models.SectionUi
-import com.nei.cronos.saveTitlePref
 import com.nei.cronos.ui.main.MainUiState
 import com.nei.cronos.ui.main.MainViewModel
 import com.nei.cronos.ui.main.shouldUseDarkTheme
 import com.nei.cronos.ui.main.shouldUseDynamicTheming
 import com.nei.cronos.ui.pages.home.HomeViewModel
-import com.nei.cronos.updateAppWidget
+import com.nei.cronos.ui.widget.CounterWidget
+import com.nei.cronos.ui.widget.WeatherInfoStateDefinition
+import com.nei.cronos.ui.widget.WidgetData
+import com.nei.cronos.ui.widget.WidgetState
 import com.nei.cronos.utils.Mocks
 import com.nei.cronos.utils.differenceParse
 import cronos.core.database.models.SectionEntity
@@ -72,26 +77,46 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class ChronometerWidgetConfigureActivity : ComponentActivity() {
 
     private val viewModel by viewModels<MainViewModel>()
-    private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-    private var onChronometerClick = { id: Long ->
+    private lateinit var glanceId: GlanceId
+    private var onChronometerClick = { chronometer: ChronometerUi ->
         val context = this@ChronometerWidgetConfigureActivity
 
         // When the button is clicked, store the string locally
         // TODO set here id chronometer
-        saveTitlePref(context, appWidgetId, "id:$id")
+        //   saveChronometerIdPref(context, appWidgetId, id)
 
         // It is the responsibility of the configuration activity to update the app widget
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        updateAppWidget(context, appWidgetManager, appWidgetId)
+        // Update the app widget
+        runBlocking {
+            updateAppWidgetState(
+                context = context,
+                definition = WeatherInfoStateDefinition,
+                glanceId = glanceId,
+                updateState = {
+                    WidgetState.Available(
+                        data = WidgetData(
+                            chronometerId = chronometer.id,
+                            title = chronometer.title,
+                            lastEventZonedDateTime = chronometer.lastEvent?.time,
+                            lastEventType = chronometer.lastEvent?.type,
+                            lastTimeRunning = chronometer.lastTimeRunning,
+                            formatFlags = chronometer.format.toFlags()
+                        )
+                    )
+                }
+            )
+            CounterWidget().update(context, glanceId)
+        }
 
         // Make sure we pass back the original appWidgetId
         val resultValue = Intent()
-        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        //  resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, glanceId.)
         setResult(RESULT_OK, resultValue)
         finish()
     }
@@ -106,19 +131,15 @@ class ChronometerWidgetConfigureActivity : ComponentActivity() {
         setResult(RESULT_CANCELED)
 
         // Find the widget id from the intent.
-        val intent = intent
-        val extras = intent.extras
-        if (extras != null) {
-            appWidgetId = extras.getInt(
-                AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID
-            )
-        }
+        val manager = GlanceAppWidgetManager(this)
+        val glanceIdBy = manager.getGlanceIdBy(intent)
 
         // If this activity was started with an intent without an app widget ID, finish with an error.
-        if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        if (glanceIdBy == null) {
             finish()
             return
         }
+        glanceId = glanceIdBy
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -164,7 +185,7 @@ class ChronometerWidgetConfigureActivity : ComponentActivity() {
     }
 }
 
-typealias OnChronometerClick = (Long) -> Unit
+typealias OnChronometerClick = (ChronometerUi) -> Unit
 
 @Composable
 fun HomeRoute(
@@ -298,7 +319,7 @@ private fun LazyListScope.sectionContent(
                     title = chronometer.title,
                     format = chronometer.format
                 ) {
-                    onChronometerClick.invoke(chronometer.id)
+                    onChronometerClick.invoke(chronometer)
                 }
             } else {
                 ChronometerListItem(
@@ -306,14 +327,14 @@ private fun LazyListScope.sectionContent(
                     title = chronometer.title,
                     format = chronometer.format
                 ) {
-                    onChronometerClick.invoke(chronometer.id)
+                    onChronometerClick.invoke(chronometer)
                 }
             }
         } else {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = { onChronometerClick.invoke(chronometer.id) })
+                    .clickable(onClick = { onChronometerClick.invoke(chronometer) })
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically

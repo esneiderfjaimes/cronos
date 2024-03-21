@@ -20,4 +20,5 @@
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
     <string name="title_activity_setup_widget">SetupWidgetActivity</string>
+    <string name="glace_app_widget_description">Glace Chronometer Widget</string>
 </resources>

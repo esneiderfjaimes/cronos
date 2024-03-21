@@ -1,6 +1,7 @@
 plugins {
     id("cronos.android.application")
     id("cronos.android.hilt")
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
 }
 
 android {
@@ -66,11 +67,18 @@ dependencies {
     implementation(project(":core:datastore"))
     implementation(project(":core:model"))
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+
+
     // For AppWidgets support
     implementation("androidx.glance:glance-appwidget:1.0.0")
 
     // For interop APIs with Material 3
     implementation("androidx.glance:glance-material3:1.0.0")
+    implementation("com.google.android.glance.tools:appwidget-host:0.2.2")
+
+    debugImplementation("com.google.android.glance.tools:appwidget-viewer:0.2.2")
+
 
     // Compose
     implementation(platform(libs.compose.bom))
