@@ -190,7 +190,7 @@ private fun LazyListScope.sectionContent(
         if (!chronometer.isPaused) {
             if (chronometer.lastEvent == null) {
                 ChronometerListItem(
-                    time = chronometer.createdAt,
+                    time = chronometer.lastTimeRunning,
                     title = chronometer.title,
                     format = chronometer.format
                 ) {

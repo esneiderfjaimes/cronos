@@ -58,11 +58,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nei.cronos.BuildConfig
 import com.nei.cronos.R
 import com.nei.cronos.core.designsystem.component.NeiLoading
 import com.nei.cronos.core.designsystem.theme.CronosTheme
@@ -122,6 +124,8 @@ private fun SettingsScreen(
                         updateDarkThemeConfig = updateDarkThemeConfig,
                         updateDynamicColorPreference = updateDynamicColorPreference
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Footer()
                 }
             }
         }
@@ -295,6 +299,18 @@ fun ColumnScope.Content(
             HorizontalDivider()
         }
     }
+}
+
+@Composable
+fun ColumnScope.Footer() {
+    Text(
+        text = "version ${BuildConfig.VERSION_NAME}",
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(16.dp)
+            .alpha(0.5f),
+        style = MaterialTheme.typography.bodySmall
+    )
 }
 
 @Composable

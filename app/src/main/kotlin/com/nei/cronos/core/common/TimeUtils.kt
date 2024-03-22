@@ -6,7 +6,7 @@ import java.time.ZonedDateTime
 
 fun genTimeRange(chronometer: ChronometerUi): Pair<ZonedDateTime, ZonedDateTime> = when {
     // state new and running
-    chronometer.lastEvent == null -> chronometer.createdAt to ZonedDateTime.now()
+    chronometer.lastEvent == null -> chronometer.lastTimeRunning to ZonedDateTime.now()
     // state paused
     chronometer.lastEvent.type == EventType.STOP -> chronometer.lastTimeRunning to chronometer.lastEvent.time
     // state resuming

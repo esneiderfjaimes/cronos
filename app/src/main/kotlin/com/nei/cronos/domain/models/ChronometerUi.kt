@@ -22,6 +22,5 @@ data class ChronometerUi(
     val isArchived: Boolean = false,
     val lastEvent: EventEntity? = null
 ) {
-    val isPaused: Boolean =
-        (!isActive && lastEvent?.type == EventType.STOP)
+    val isPaused: Boolean = (lastEvent?.type == EventType.STOP)
 }
